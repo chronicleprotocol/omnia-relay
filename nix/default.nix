@@ -39,5 +39,5 @@ in rec {
     oracleVersion = pkgs.lib.fileContents ../version;
   };
 
-  install-omnia = pkgs.callPackage ../systemd { inherit omnia ssb-server oracle-suite; };
+  install-relay = pkgs.callPackage ../systemd { inherit omnia ssb-server oracle-suite; };
 }

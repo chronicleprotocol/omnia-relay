@@ -1,6 +1,6 @@
 { stdenv, lib, makeWrapper, shellcheck, glibcLocales, coreutils, gettext, jq, omnia, ssb-server, oracle-suite }:
 stdenv.mkDerivation rec {
-  name = "install-omnia-${version}";
+  name = "install-relay-${version}";
   version = lib.fileContents ../version;
   src = ./.;
 
@@ -14,10 +14,10 @@ stdenv.mkDerivation rec {
     omniaConf = ../omnia/config;
   in ''
     mkdir -p $out/{bin,share}
-    cp -t $out/bin install-omnia
+    cp -t $out/bin install-relay
     cp -t $out/share *.service *.json ${omniaConf}/*.json
 
-    wrapProgram "$out/bin/install-omnia" \
+    wrapProgram "$out/bin/install-relay" \
       --prefix PATH : "${path}" \
       --set SHARE_PATH "$out/share" \
       --set OMNIA_PATH "${omnia}/bin/omnia" \
@@ -32,7 +32,7 @@ stdenv.mkDerivation rec {
 
   doCheck = true;
   checkPhase = ''
-    shellcheck -x install-omnia
+    shellcheck -x install-relay
   '';
 
   meta = {

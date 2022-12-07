@@ -103,7 +103,7 @@ Add Maker build cache:
 nix run -f https://cachix.org/api/v1/install cachix -c cachix use maker
 ```
 
-Then run the following to make the `omnia`, `ssb-server` and `install-omnia`
+Then run the following to make the `omnia`, `ssb-server` and `install-relay`
 commands available in your user environment:
 
 ```sh
@@ -121,7 +121,7 @@ Get the Scuttlebot private network keys (caps) from an admin and put it in a fil
 }
 ```
 
-You can use the `install-omnia` command to install Omnia as a `systemd`
+You can use the `install-relay` command to install Omnia as a `systemd`
 service, update your `/etc/omnia.conf`, `~/.ssb/config` and migrate a
 Scuttlebot secret and gossip log.
 
@@ -131,7 +131,7 @@ Scuttlebot secret and gossip log.
 To install and configure Omnia as a feed running with `systemd`:
 
 ```
-install-omnia feed \
+install-relay feed \
 	--ssb-caps ~/caps.json \
 	--ssb-external <your external ip here> \
 	--eth-rpc <https://node1[:port]/path> \
@@ -142,7 +142,7 @@ install-omnia feed \
 For more information about the install CLI:
 
 ```
-install-omnia help
+install-relay help
 ```
 
 The installed Scuttlebot config can be found in `~/.ssb.config`, more details

@@ -99,7 +99,7 @@ if [[ "$1" == "configure" ]]; then
 		shift
 	done
 
-	cmd=("install-omnia" "$_mode")
+	cmd=("install-relay" "$_mode")
 	cmd+=("${opts[@]}")
 
 	echo -e "\n\n${cmd[*]}\n\n"

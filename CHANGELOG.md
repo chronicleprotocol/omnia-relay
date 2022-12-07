@@ -41,7 +41,7 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ### Changed
 
-- Make sure `install-omnia` works with the new config structures of spire and gofer.
+- Make sure `install-relay` works with the new config structures of spire and gofer.
 
 ## [1.6.1] - 2021-07-07
 
