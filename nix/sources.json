@@ -71,18 +71,6 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/3a86856a13c88c8c64ea32082a851fefc79aa700.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "omnia": {
-        "branch": "master",
-        "description": null,
-        "homepage": "",
-        "owner": "chronicleprotocol",
-        "repo": "omnia",
-        "rev": "v1.14.0",
-        "sha256": "0hc01gf7nclws286fv1616n67sj974zv5d8pcpl95dffgl8xhkyd",
-        "type": "tarball",
-        "url": "https://github.com/chronicleprotocol/omnia/archive/v1.14.0.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "oracle-suite": {
         "branch": "master",
         "description": null,

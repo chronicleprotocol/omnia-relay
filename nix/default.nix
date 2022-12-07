@@ -10,6 +10,7 @@ let
   getName = x: let parse = drv: (builtins.parseDrvName drv).name; in if isString x then parse x else x.pname or (parse x.name);
   ssb-patches = ../ssb-server;
   nixpkgs2 = import sources.nixpkgs2 { };
+  omniaSrc = ../omnia;
 in rec {
   inherit pkgs;
 
@@ -31,10 +32,10 @@ in rec {
 
   oracle-suite = pkgs.callPackage sources.oracle-suite { buildGoModule = nixpkgs2.buildGo118Module; };
   setzer = pkgs.callPackage sources.setzer { };
-  ethsign = pkgs.callPackage (import "${sources.omnia}/ethsign") { };
+  ethsign = pkgs.callPackage (import "${omniaSrc}/ethsign") { };
   foundry = pkgs.callPackage (import ../foundry) { inherit (nixpkgs2) pkgs; };
 
-  omnia = pkgs.callPackage sources.omnia {
+  omnia = pkgs.callPackage (import omniaSrc) {
     inherit ssb-server oracle-suite setzer ethsign foundry;
     oracleVersion = pkgs.lib.fileContents ../version;
   };
