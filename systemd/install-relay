@@ -345,7 +345,7 @@ copySplitterConf() {
 
 installConfigs() {
 	echo "INSTALL CONFIGS: START"
-	copyOmniaConf "$installType.json"
+	copyOmniaConf "relay-$chainType-$chainVariant.json"
 	copySsbConf
 	copySpireConf
 	echo "INSTALL CONFIGS: DONE"
@@ -359,7 +359,6 @@ installServices() {
 	echo "INSTALL SERVICES: DONE"
 }
 
-installType="relay"
 chainVariant="mainnet"
 case "$1" in
 	ethereum)
@@ -379,6 +378,7 @@ case "$1" in
 		usage
 		;;
 esac
+chainType="$1"
 configOverrides+=(".ethereum.type = \"$1\"")
 configUpdates+=(".options.ethGas = ${_gas}")
 shift
@@ -409,7 +409,7 @@ while [[ -n "$1" ]]; do
 			splitterConfigOverrides+=(".ethereum.rpc += [\"$2\"]")
 			shift
 			;;
-		--chain-type)
+		--chain-variant)
 			configOverrides+=(".ethereum.variant = \"$1\"")
 			shift
 			;;
