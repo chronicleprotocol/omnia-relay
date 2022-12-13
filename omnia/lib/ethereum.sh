@@ -110,6 +110,8 @@ pushOraclePrice () {
 							"[$(join "${allS[@]}")]" \
 							--rpc-url "$ETH_RPC_URL")
 		then
+			verbose "sim $_assetPair OK"
+		else
 		  error "TX $_assetPair Sim Failed"
 		  return 1
 		fi

@@ -37,7 +37,7 @@ updateOracle () {
             sortMsgs "${entries[@]}"
             verbose --raw "sorted messages" "${_sortedEntries[*]}"
             generateCalldata "${_sortedEntries[@]}"
-            pushOraclePrice "$assetPair"
+            pushOraclePrice "$assetPair" || error "pushOraclePrice failed" "asset=$assetPair"
         fi
     done
 }
