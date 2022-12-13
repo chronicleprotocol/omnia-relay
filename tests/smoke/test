@@ -12,7 +12,7 @@ keystore_path="$ETH_KEYSTORE"
 key_path="$ETH_PASSWORD"
 
 install_feed() {
-  install-omnia feed \
+  install-relay feed \
     --from         "$from_addr" \
     --keystore     "$keystore_path" \
     --password     "$key_path" \
@@ -32,7 +32,7 @@ install_relay() {
   updatedConf=$(jq '.friends.hops = 2' "$HOME/.ssb/config")
   printf %s "$updatedConf" > "$HOME/.ssb/config"
 
-  install-omnia relay \
+  install-relay relay \
     --network      "testnet" \
     --ssb-external "example-2.org" \
     | sudo sh

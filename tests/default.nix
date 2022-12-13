@@ -20,7 +20,7 @@ in pkgs.mkShell rec {
       nodepkgs.tap-xunit
       median
       oracles.omnia
-      oracles.install-omnia
+      oracles.install-relay
     ] ++ oracles.omnia.buildInputs;
 
   RESULTS_DIR = "${toString ./.}/test-results";

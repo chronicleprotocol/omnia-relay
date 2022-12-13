@@ -37,7 +37,7 @@ updateOracle () {
             sortMsgs "${entries[@]}"
             verbose --raw "sorted messages" "${_sortedEntries[*]}"
             generateCalldata "${_sortedEntries[@]}"
-            pushOraclePrice "$assetPair"
+            pushOraclePrice "$assetPair" || error "pushOraclePrice failed" "asset=$assetPair"
         fi
     done
 }
@@ -86,16 +86,17 @@ sortMsgs () {
 generateCalldata () {
     local _msgs=( "$@" )
     local _sig
-    local _v
+
     verbose "Generating Calldata..."
     for msg in "${_msgs[@]}"; do
         _sig=$( echo "$msg" | jq -r '.signature' )
-        _v=${_sig:128:2}
-        allR+=( "0x${_sig:0:64}" )
-        allS+=( "0x${_sig:64:64}" )
-        allV+=( "$(ethereum --to-uint256 "0x$_v" )" )
-        allPrices+=( "0x$( echo "$msg" | jq -r '.priceHex' )" )
-        allTimes+=( "0x$( echo "$msg" | jq -r '.timeHex' )" )
+
+        allR+=( "${_sig:0:64}" )
+        allS+=( "${_sig:64:64}" )
+        allV+=( "$(ethereum --to-dec "${_sig:128:2}")" )
+        allPrices+=( "$(ethereum --to-dec "$( echo "$msg" | jq -r '.priceHex' )")" )
+        allTimes+=( "$(ethereum --to-dec "$( echo "$msg" | jq -r '.timeHex' )")" )
     done
+
     verbose "allPrices=${allPrices[*]}" "allTimes=${allTimes[*]}" "allR=${allR[*]}" "allS=${allS[*]}" "allV=${allV[*]}"
 }

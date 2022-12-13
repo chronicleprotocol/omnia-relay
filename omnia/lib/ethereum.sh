@@ -90,22 +90,38 @@ pushOraclePrice () {
 
 		local _calldata
 		_calldata=$(ethereum calldata 'poke(uint256[] memory,uint256[] memory,uint8[] memory,bytes32[] memory,bytes32[] memory)' \
-				"[$(ethereum --to-base $(join "${allPrices[@]}") d)]" \
-				"[$(ethereum --to-base $(join "${allTimes[@]}") d)]" \
-				"[$(ethereum --to-base $(join "${allV[@]}") d)]" \
+				"[$(join "${allPrices[@]}")]" \
+				"[$(join "${allTimes[@]}")]" \
+				"[$(join "${allV[@]}")]" \
 				"[$(join "${allR[@]}")]" \
 				"[$(join "${allS[@]}")]")
 
-		# signing tx, cast dont dupport ethsign, so have to do it manually
+		# signing tx, cast dont support ethsign, so have to do it manually
 		local _txdata
 		_txdata=$(signTxBeforePush $_oracleContract $_calldata $_fees)
 
-		log "Sending tx..."
+		log "Simulating $_assetPair tx..."
+		local _sim
+		if _sim=$(ethereum call "$_oracleContract" 'poke(uint256[] memory,uint256[] memory,uint8[] memory,bytes32[] memory,bytes32[] memory)' \
+							"[$(join "${allPrices[@]}")]" \
+							"[$(join "${allTimes[@]}")]" \
+							"[$(join "${allV[@]}")]" \
+							"[$(join "${allR[@]}")]" \
+							"[$(join "${allS[@]}")]" \
+							--rpc-url "$ETH_RPC_URL")
+		then
+			verbose "sim $_assetPair OK"
+		else
+		  error "TX $_assetPair Sim Failed"
+		  return 1
+		fi
+
+		log "Sending $_assetPair tx..."
 		tx=$(ethereum publish --async --rpc-url "$ETH_RPC_URL" $_txdata)
-		
+
 		_status="$(timeout -s9 60 ethereum receipt "$tx" status --rpc-url "$ETH_RPC_URL" )"
 		_gasUsed="$(timeout -s9 60 ethereum receipt "$tx" gasUsed --rpc-url "$ETH_RPC_URL" )"
 		
 		# Monitoring node helper JSON
-		verbose "Transaction receipt" "tx=$tx" "type=$ETH_TX_TYPE" "maxGasPrice=${_fees[0]}" "prioFee=${_fees[1]}" "gasUsed=$_gasUsed" "status=$_status"
+		verbose "Transaction receipt" "pair=$_assetPair" "tx=$tx" "type=$ETH_TX_TYPE" "maxGasPrice=${_fees[0]}" "prioFee=${_fees[1]}" "gasUsed=$_gasUsed" "status=$_status"
 }

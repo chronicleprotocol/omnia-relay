@@ -30,7 +30,7 @@ export SPLITTER_CONFIG="${SPLITTER_CONFIG:-/etc/splitter.conf}"
 export SPLITTER_URLS="${SPLITTER_URLS:-""}"
 export SPLITTER_LOG_FORMAT="${SPLITTER_LOG_FORMAT:-"text"}"
 export SPLITTER_LOG_VERBOSITY="${SPLITTER_LOG_VERBOSITY:-"error"}"
-SPLITTER_RPC_ADDR="127.0.0.1:9989"
+export SPLITTER_RPC_ADDR="${SPLITTER_RPC_ADDR:-"127.0.0.1:9989"}"
 
 export LEELOO_PATH=${LEELOO_PATH:-$(command -v leeloo)}
 export LEELOO_CONFIG=${LEELOO_CONFIG:-/etc/leeloo.conf}
@@ -39,7 +39,7 @@ export LEELOO_LOG_VERBOSITY=${LEELOO_LOG_VERBOSITY:-"error"}
 
 usage() {
 	cat >&2 << EOF
-Usage: install-omnia COMMAND OPTIONS...
+Usage: install-relay COMMAND OPTIONS...
 
 Commands:
   relay Install Omnia service with default relay config
@@ -344,39 +344,43 @@ copySplitterConf() {
 }
 
 installConfigs() {
-	copyOmniaConf "$installType.conf"
+	echo "INSTALL CONFIGS: START"
+	copyOmniaConf "relay-$chainType-$chainVariant.json"
 	copySsbConf
-	copySplitterConf
-	copyGoferConf
-	copyLeelooConf
 	copySpireConf
+	echo "INSTALL CONFIGS: DONE"
 }
 
 installServices() {
+	echo "INSTALL SERVICES: START"
 	subst spire-agent "$SHARE_DIR"/spire-agent.service
-	subst leeloo-agent "$SHARE_DIR"/leeloo-agent.service
-	subst gofer-agent "$SHARE_DIR"/gofer-agent.service
-	subst splitter-agent "$SHARE_DIR"/splitter-agent.service
 	subst ssb-server "$SHARE_DIR"/ssb-server.service
 	subst omnia "$SHARE_DIR"/omnia.service
+	echo "INSTALL SERVICES: DONE"
 }
 
+chainVariant="mainnet"
 case "$1" in
-	feed)
-		installType="feed"
+	ethereum)
+		_gas=150000
 		;;
-	relay)
-		installType="relay"
+	optimism)
+		_gas=250000
+		;;
+	arbitrum)
+		_gas=5000000
 		;;
 	help | --help | -h)
 		usage
 		;;
 	*)
-		echo >&2 "\"$1\" is not a valid command"
+		echo >&2 "Chain type must be one of [ethereum|optimism|arbitrum]"
 		usage
 		;;
 esac
-
+chainType="$1"
+configOverrides+=(".ethereum.type = \"$1\"")
+configUpdates+=(".options.ethGas = ${_gas}")
 shift
 
 while [[ -n "$1" ]]; do
@@ -401,28 +405,12 @@ while [[ -n "$1" ]]; do
 			configOverrides+=(".options.ethGas = $2")
 			shift
 			;;
-		--eth-type)
-			configOverrides+=(".ethereum.type = \"$2\"")
-			case "$2" in
-				ethereum)
-					_gas=150000
-					;;
-				optimism)
-					_gas=250000
-					;;
-				arbitrum)
-					_gas=5000000
-					;;
-				*)
-					echo >&2 "Chain type must be one of [ethereum|optimism|arbitrum]"
-					usage
-					;;
-			esac
-			configUpdates+=(".options.ethGas = ${_gas}")
-			shift
-			;;
 		--eth-rpc)
 			splitterConfigOverrides+=(".ethereum.rpc += [\"$2\"]")
+			shift
+			;;
+		--chain-variant)
+			configOverrides+=(".ethereum.variant = \"$1\"")
 			shift
 			;;
 		--eth-rpc-arbitrum)
