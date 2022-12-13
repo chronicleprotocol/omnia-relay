@@ -6,4 +6,10 @@ cd "$(cd "${0%/*/*}" && pwd)/lib"
 source ./log.sh
 verbose --list "cast()" "$@"
 
-cast "$@" 2> >(STDERR_DATA="$(cat)"; [[ -z "$STDERR_DATA" ]] || verbose "cast [stderr]" "$STDERR_DATA")
+if _cmd="$(cast "$@" 2> >(STDERR_DATA="$(cat)"; [[ -z "$STDERR_DATA" ]] || verbose --raw "cast [stderr]" "$STDERR_DATA"))"
+then
+	echo $_cmd
+else
+	error "cast command failed"
+	exit 1
+fi
