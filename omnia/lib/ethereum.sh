@@ -10,6 +10,24 @@ pullOracleTime () {
 	timeout -s9 10 ethereum call "$_address" "age()(uint32)" --rpc-url "$ETH_RPC_URL"
 }
 
+isFeedLifted () {
+	local _assetPair="$1"
+	local _feedAddr="$2"
+	local _address
+	_address=$(getOracleContract "$_assetPair")
+	if ! [[ "$_address" =~ ^(0x){1}[0-9a-fA-F]{40}$ ]]; then
+		error "Error - Invalid Oracle contract"
+		return 1
+	fi
+
+	[[ -z "$_feedAddr" ]] && {
+		error "Error - feed address not passed"
+		return 1
+	}
+
+	timeout -s9 10 ethereum call "$_address" "orcl(address)(uint256)" "$_feedAddr" --rpc-url "$ETH_RPC_URL"
+}
+
 pullOracleQuorum () {
 	local _assetPair="$1"
 	local _address

@@ -26,9 +26,6 @@ resetTestState() {
 }
 export -f resetTestState
 
-pullLatestPricesOfAssetPair() { _pricePulled="true" ; }
-export -f pullLatestPricesOfAssetPair
-
 extractPrices() { printf "" ; }
 export -f extractPrices
 
@@ -42,9 +39,61 @@ export -f isPriceValid
 isQuorum() { printf "false" ; }
 export -f isQuorum
 
-# testing for empty quorum
+# Testing for empty quorum
 pullOracleQuorum() { printf "" ; }
 export -f pullOracleQuorum
+
+# Expect to filter one of the feeds below when we pull messages from transport
+test_filterFeedOnPull() {
+    resetTestState
+    local feeds=(
+        0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000001
+        0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000002
+        0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000003
+        0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000004
+        0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000005
+    )
+    isAssetPair () {
+        echo 'true'
+    }
+    isMsgExpired () {
+        echo 'false'
+    }
+    isMsgNew () {
+        echo 'true'
+    }
+    isFeedLifted () {
+        if [ "$2" = "0xDEaDBeefdeadBeEfdEadBEEFDeADBEEF00000003" ]; then
+            echo '0'
+        else
+            echo '1'
+        fi
+    }
+    pullOracleTime () {
+        echo '1'
+    }
+    transportPull () {
+        echo '1'
+    }
+    log () {
+        >&2 echo "$@"
+    }
+    export -f isAssetPair
+    export -f isMsgExpired
+    export -f isMsgNew
+    export -f isFeedLifted
+    export -f pullOracleTime
+    export -f transportPull
+    export -f log
+
+    local entries=()
+    assert "pullLatestPricesOfAssetPair runs without failure" run pullLatestPricesOfAssetPair "BTC/USD" "5"
+    assert "pullLatestPricesOfAssetPair entries are filtered" match "1 1 1 1" <<<"${entries[@]}"
+} && test_filterFeedOnPull
+# ^ run before mock of pullLatestPricesOfAssetPair() below
+
+pullLatestPricesOfAssetPair() { _pricePulled="true" ; }
+export -f pullLatestPricesOfAssetPair
 
 # Reset test vars before testing
 resetTestState 
@@ -76,3 +125,4 @@ isQuorum() { printf "true" ; }
 resetTestState
 assert "updateOracle runs without failure" run updateOracle
 assert "updateOracle call pullLatestPricesOfAssetPair with correct quorum" match "true" <<<$_pricePulled
+

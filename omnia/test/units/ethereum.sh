@@ -33,3 +33,5 @@ _list=$(seq 10)
 assert "getMedian returns correct median amount" match "5.5" < <(capture getMedian $_list)
 
 assert "join returns correctly joined args" match "1,2,3" < <(capture join 1 2 3)
+
+assert "isFeedLifted should fail if incorrect address configured" fail isFeedLifted "BTC/USD"
