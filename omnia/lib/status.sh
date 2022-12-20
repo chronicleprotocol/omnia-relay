@@ -179,13 +179,14 @@ isOracleStale () {
 	isStale "$_oldPrice" "$_newPrice" "$_spreadLimit"
 }
 
-#is timestamp of message more recent than timestamp of last Oracle update
+#is timestamp of message more recent than timestamp of last Oracle update. NOTE
+#expects _oracleTime to be passed as param.
 isMsgNew () {
 	local _assetPair="$1"
 	local _msg="$2"
+	local _oracleTime="$3"
 	local _oracleTime
 	local _msgTime
-	_oracleTime=$(pullOracleTime "$_assetPair")
 	if ! [[ "$_oracleTime" =~ ^[0-9]{10}|[0]{1}$ ]]; then
 		error "Error - Invalid Oracle time ($_oracleTime)"
 		echo false

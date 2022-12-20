@@ -53,6 +53,8 @@ pullLatestPricesOfAssetPair () {
     _randomizedFeeds=( $(shuf -e "${feeds[@]}") )
 
     log "Pulling $_assetPair Messages"
+    #only query age param from contract once per pull
+    local _oracleAge=$(pullOracleTime "$_assetPair")
     #scrape all feeds
     for feed in "${_randomizedFeeds[@]}"; do
         #stop collecting messages once quorum has been achieved
@@ -69,7 +71,8 @@ pullLatestPricesOfAssetPair () {
         && [ -n "$priceEntry" ] \
         && [ "$(isAssetPair "$_assetPair" "$priceEntry")" == "true" ] \
         && [ "$(isMsgExpired "$_assetPair" "$priceEntry")" == "false" ] \
-        && [ "$(isMsgNew "$_assetPair" "$priceEntry")" == "true" ]
+        && [ "$(isMsgNew "$_assetPair" "$priceEntry" "$_oracleAge")" == "true" ] \
+        && [ "$(isFeedLifted "$_assetPair" "$feed")" == "1" ]
         then
             log "Adding message catalogue" "feedAddr=$feed"
             entries+=( "$priceEntry" )

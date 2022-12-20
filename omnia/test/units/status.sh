@@ -101,19 +101,11 @@ assert "isOracleExpired should return false on non expired oracle" match "false"
 
 # isMsgNew
 
-pullOracleTime() {
-	printf "a"
-}
-export -f pullOracleTime
-assert "isMsgNew should fail if oracle returned invalid time" fail isMsgNew "BTC/USD" '{"time":1}'
+assert "isMsgNew should fail if oracle returned invalid time" fail isMsgNew "BTC/USD" '{"time":1}' "wut")
 
-pullOracleTime() {
-	printf "1615917609"
-}
-export -f pullOracleTime
-assert "isMsgNew should fail if passed msg does not have time field" fail isMsgNew "BTC/USD" "{}"
-assert "isMsgNew should fail if passed msg is invalid JSON" fail isMsgNew "BTC/USD" "{"
-assert "isMsgNew should fail if passed time in msg is invalid" fail isMsgNew "BTC/USD" '{"time":"123"}'
-
-assert "isMsgNew should return false on same time" match "false" < <(capture isMsgNew "BTC/USD" '{"time":1}')
-assert "isMsgNew should return true if msg time is greater" match "true" < <(capture isMsgNew "BTC/USD" '{"time":1615917610}')
+ts="1615917609"
+assert "isMsgNew should fail if passed msg does not have time field" fail isMsgNew "BTC/USD" "{}" "$ts"
+assert "isMsgNew should fail if passed msg is invalid JSON" fail isMsgNew "BTC/USD" "{" "$ts" 
+assert "isMsgNew should fail if passed time in msg is invalid" fail isMsgNew "BTC/USD" '{"time":"123"}' "$ts"
+assert "isMsgNew should return false on same time" match "false" < <(capture isMsgNew "BTC/USD" '{"time":1}' "$ts")
+assert "isMsgNew should return true if msg time is greater" match "true" < <(capture isMsgNew "BTC/USD" '{"time":1615917610}' "$ts")
