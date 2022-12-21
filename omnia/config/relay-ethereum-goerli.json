@@ -27,7 +27,9 @@
     "setzerTimeout": 10,
     "spireConfig": "",
     "srcTimeout": 10,
-    "verbose": true
+    "verbose": true,
+    "ethGas": 150000,
+    "chainType": "ethereum"
   },
   "pairs": {
     "BTC/USD": {

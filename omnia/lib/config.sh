@@ -78,25 +78,6 @@ importNetwork () {
 	esac
 	export ETH_RPC_URL
 
-	local _chainType
-	_chainType="$(echo "$_json" | jq -r '.type')"
-	_chainType="${_chainType,,}"
-
-	[[ -n "$_chainType" ]] || ETH_TX_TYPE=2
-
-	case "${_chainType}" in
-		ethereum)
-			ETH_TX_TYPE=2
-			;;
-		optimism|arbitrum)
-			ETH_TX_TYPE=0
-			;;
-		*)
-			error "Chain type must be one of [ethereum|optimism|arbitrum]"
-			;;
-	esac
-	export ETH_TX_TYPE
-
 	[[ $(getLatestBlock "$ETH_RPC_URL") =~ ^[1-9]{1,}[0-9]*$ ]] || errors+=("Error - Unable to connect to Ethereum _network.\nValid options are: ethlive, mainnet, ropsten, kovan, rinkeby, goerli, or a custom endpoint")
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }
@@ -278,10 +259,25 @@ importOptionsEnv () {
 		[[ -n "$SETZER_ETH_RPC_URL" ]] || errors+=("Error - Setzer ethereum RPC address is not set.")
 		export SETZER_ETH_RPC_URL
 	elif [[ "$OMNIA_MODE" == "RELAY" ]]; then
-		ETH_GAS=$(echo "$_json" | jq -r '.ethGas // ""')
-		[[ -n "$ETH_GAS" ]] || ETH_GAS=200000
+		ETH_GAS=$(echo "$_json" | jq -r '.ethGas // 200000')
 		export ETH_GAS
 	fi
+
+	local _chainType
+	_chainType="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
+	_chainType="${_chainType,,}"
+	case "${_chainType}" in
+		ethereum)
+			ETH_TX_TYPE=2
+			;;
+		optimism|arbitrum)
+			ETH_TX_TYPE=0
+			;;
+		*)
+			error "Chain type (i.e.: .options.chainType) must be one of [ethereum|optimism|arbitrum]"
+			;;
+	esac
+	export ETH_TX_TYPE
 
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }

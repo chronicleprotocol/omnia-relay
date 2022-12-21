@@ -72,7 +72,9 @@
     "interval": 60,
     "msgLimit": 35,
     "verbose": true,
-    "logFormat": "text"
+    "logFormat": "text",
+    "ethGas": 5000000,
+    "chainType": "arbitrum"
   },
   "pairs": {
     "BTC/USD": {
