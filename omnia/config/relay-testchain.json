@@ -4,7 +4,7 @@
     "from": "0x",
     "keystore": "",
     "password": "",
-    "network": ""
+    "network": "",
     "gasPrice": {
       "source": "node",
       "maxPriceMultiplier": 2,
@@ -25,7 +25,8 @@
     "interval": 60,
     "msgLimit": 30,
     "verbose": true,
-    "logFormat": "json"
+    "logFormat": "json",
+    "chainType": "ethereum"
   },
   "pairs": {
     "BATUSD": {

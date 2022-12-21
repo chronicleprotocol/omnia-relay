@@ -14,7 +14,8 @@
   "options": {
     "interval": 60,
     "msgLimit": 20,
-    "ethGas": 200000
+    "ethGas": 200000,
+    "chainType": "ethereum"
   },
   "transports":["spire","ssb-rpc"],
   "pairs": {
