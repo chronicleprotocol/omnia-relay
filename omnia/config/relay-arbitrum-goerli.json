@@ -1,0 +1,53 @@
+{
+  "mode": "relay",
+  "ethereum": {
+    "from": "0x",
+    "keystore": "",
+    "password": "",
+    "network": "mainnet",
+    "gasPrice": {
+      "source": "node",
+      "maxPriceMultiplier": 2,
+      "tipMultiplier": 1,
+      "priority": "fast"
+    }
+  },
+  "options": {
+    "interval": 60,
+    "msgLimit": 35,
+    "verbose": true,
+    "logFormat": "text",
+    "ethGas": 5000000,
+    "chainType": "arbitrum"
+  },
+  "transports": [
+    "spire",
+    "ssb"
+  ],
+  "scuttlebotIdMap": {
+    "0x5C01f0F08E54B85f4CaB8C6a03c9425196fe66DD": "@uqOcvBdpBXWNCm5WhjALbtyR8szWpihH/CVyNdycncQ=.ed25519",
+    "0x75FBD0aaCe74Fb05ef0F6C0AC63d26071Eb750c9": "@wrrCKd56pV5CNSVh+fkVh6iaRUG6VA5I5VDEo8XOn5E=.ed25519",
+    "0x0c4FC7D66b7b6c684488c1F218caA18D4082da18": "@4ltZDRGFi4eHGGlXmLC8olcEs8XNZCXfvx+3V3S2HgY=.ed25519",
+    "0xC50DF8b5dcb701aBc0D6d1C7C99E6602171Abbc4": "@gt/2QK1AdSCLX3zRJQV6wRRsoxgohChCpjmNOOLUAA4=.ed25519"
+  },
+  "feeds": [
+    "0x5C01f0F08E54B85f4CaB8C6a03c9425196fe66DD",
+    "0x75FBD0aaCe74Fb05ef0F6C0AC63d26071Eb750c9",
+    "0x0c4FC7D66b7b6c684488c1F218caA18D4082da18",
+    "0xC50DF8b5dcb701aBc0D6d1C7C99E6602171Abbc4"
+  ],
+  "pairs": {
+    "BTC/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0x490d05d7eF82816F47737c7d72D10f5C172e7772",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
+    },
+    "ETH/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0xBBF1a875B13E4614645934faA3FEE59258320415",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
+    }
+  }
+}

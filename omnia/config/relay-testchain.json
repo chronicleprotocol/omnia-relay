@@ -12,21 +12,21 @@
       "priority": "fast"
     }
   },
-  "transports":["ssb"],
-  "feeds": [
-    "0x01"
-  ],
-  "services":{
-    "scuttlebotIdMap":{
-      "0x01":"@sPKbgg0756Jia3oAgKTlWaVKqzxMSEfQ3k0Mrt3hI6I=.ed25519"
-    }
-  },
   "options": {
     "interval": 60,
     "msgLimit": 30,
     "verbose": true,
     "logFormat": "json",
     "chainType": "ethereum"
+  },
+  "transports": [
+    "ssb"
+  ],
+  "feeds": [
+    "0x01"
+  ],
+  "scuttlebotIdMap": {
+    "0x01": "@sPKbgg0756Jia3oAgKTlWaVKqzxMSEfQ3k0Mrt3hI6I=.ed25519"
   },
   "pairs": {
     "BATUSD": {
