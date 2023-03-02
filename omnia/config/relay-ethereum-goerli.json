@@ -101,6 +101,12 @@
       "oracle": "0x38D27Ba21E1B2995d0ff9C1C070c5c93dd07cB31",
       "oracleExpiration": 14400,
       "oracleSpread": 3
+    },
+    "IBTA/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0x0Aca91081B180Ad76a848788FC76A089fB5ADA72",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
     }
   }
 }
