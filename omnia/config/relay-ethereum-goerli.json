@@ -66,6 +66,12 @@
       "oracleExpiration": 14400,
       "oracleSpread": 3
     },
+    "IBTA/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0x0Aca91081B180Ad76a848788FC76A089fB5ADA72",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
+    },
     "LINK/USD": {
       "msgExpiration": 1800,
       "oracle": "0xe4919256D404968566cbdc5E5415c769D5EeBcb0",
@@ -84,6 +90,12 @@
       "oracleExpiration": 14400,
       "oracleSpread": 3
     },
+    "MKR/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0x496C851B2A9567DfEeE0ACBf04365F3ba00Eb8dC",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
+    },
     "RETH/USD": {
       "msgExpiration": 1800,
       "oracle": "0x7eEE7e44055B6ddB65c6C970B061EC03365FADB3",
@@ -99,18 +111,6 @@
     "YFI/USD": {
       "msgExpiration": 1800,
       "oracle": "0x38D27Ba21E1B2995d0ff9C1C070c5c93dd07cB31",
-      "oracleExpiration": 14400,
-      "oracleSpread": 3
-    },
-    "IBTA/USD": {
-      "msgExpiration": 1800,
-      "oracle": "0x0Aca91081B180Ad76a848788FC76A089fB5ADA72",
-      "oracleExpiration": 14400,
-      "oracleSpread": 3
-    },
-    "MKR/USD": {
-      "msgExpiration": 1800,
-      "oracle": "0x496C851B2A9567DfEeE0ACBf04365F3ba00Eb8dC",
       "oracleExpiration": 14400,
       "oracleSpread": 3
     }
