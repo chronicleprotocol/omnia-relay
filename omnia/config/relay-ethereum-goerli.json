@@ -107,6 +107,12 @@
       "oracle": "0x0Aca91081B180Ad76a848788FC76A089fB5ADA72",
       "oracleExpiration": 14400,
       "oracleSpread": 3
+    },
+    "MKR/USD": {
+      "msgExpiration": 1800,
+      "oracle": "0x496C851B2A9567DfEeE0ACBf04365F3ba00Eb8dC",
+      "oracleExpiration": 14400,
+      "oracleSpread": 3
     }
   }
 }
