@@ -1,4 +1,4 @@
-{ stdenv, lib, makeWrapper, shellcheck, glibcLocales, coreutils, gettext, jq, omnia, ssb-server, oracle-suite }:
+{ stdenv, lib, makeWrapper, shellcheck, glibcLocales, coreutils, gettext, jq, omnia, ssb-server, oracle-suite, tor }:
 stdenv.mkDerivation rec {
   name = "install-relay-${version}";
   version = lib.fileContents ../version;
@@ -23,10 +23,10 @@ stdenv.mkDerivation rec {
       --set OMNIA_PATH "${omnia}/bin/omnia" \
       --set OMNIA_LIB_PATH "${omnia}/lib" \
       --set OMNIA_CONF_PATH "$out/share" \
-      --set GOFER_PATH "${oracle-suite}/bin/gofer" \
       --set SPIRE_PATH "${oracle-suite}/bin/spire" \
       --set SPLITTER_PATH "${oracle-suite}/bin/rpc-splitter" \
       --set SSB_PATH "${ssb-server}/bin/ssb-server" \
+      --set TORPROXY_PATH "${tor}/bin/tor" \
       ${locales}
   '';
 

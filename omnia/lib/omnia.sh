@@ -1,7 +1,6 @@
 #initialize environment
 initEnv () {
-	ORACLE_VERSION=${ORACLE_VERSION:-"0.0.0-unknown"}
-	OMNIA_VERSION="$(cat ../version)"
+	OMNIA_VERSION="${OMNIA_VERSION:-"0.0.0-unset"}"
 
 	#Load Global configuration
 	importEnv || exit 1
@@ -20,7 +19,7 @@ initEnv () {
 	echo ""
 	echo "------------------------------- STARTING OMNIA -------------------------------"
 	echo "Bot started $(date)"
-	echo "Omnia Version:                     V$OMNIA_VERSION"
+	echo "Omnia Relay Version:               v$OMNIA_VERSION"
 	echo "Mode:                              $OMNIA_MODE"
 	echo "Verbose Mode:                      $OMNIA_VERBOSE"
 	echo "Interval:                          $OMNIA_INTERVAL seconds"

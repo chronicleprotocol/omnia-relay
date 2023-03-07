@@ -37,7 +37,6 @@ in rec {
 
   omnia = pkgs.callPackage (import omniaSrc) {
     inherit ssb-server oracle-suite setzer ethsign foundry;
-    oracleVersion = pkgs.lib.fileContents ../version;
   };
 
   install-relay = pkgs.callPackage ../systemd { inherit omnia ssb-server oracle-suite; };
