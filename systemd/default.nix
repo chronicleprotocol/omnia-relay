@@ -22,7 +22,6 @@ stdenv.mkDerivation rec {
       --set SHARE_PATH "$out/share" \
       --set OMNIA_PATH "${omnia}/bin/omnia" \
       --set OMNIA_LIB_PATH "${omnia}/lib" \
-      --set OMNIA_CONF_PATH "$out/share" \
       --set SPIRE_PATH "${oracle-suite}/bin/spire" \
       --set SPLITTER_PATH "${oracle-suite}/bin/rpc-splitter" \
       --set SSB_PATH "${ssb-server}/bin/ssb-server" \

@@ -32,7 +32,6 @@ stdenv.mkDerivation rec {
     mkdir -p $out
 
     cp -r ./lib $out/lib
-    cp -r ./config $out/config
 
     cp -r ./bin $out/bin
     chmod +x $out/bin/*
