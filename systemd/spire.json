@@ -5,6 +5,21 @@
     "password": ""
   },
   "transport":{
+    "transport":["libp2p","webapi"],
+    "webapi": {
+      "listenAddr": "127.0.0.1:8800",
+      "socks5ProxyAddr": "127.0.0.1:9050",
+      "addressBookType": "static",
+      "ethereumAddressBook": {
+        "addressBookAddr": "0x0000000000000000000000000000000000000000",
+        "ethereum": {
+          "rpc": ""
+        }
+      },
+      "staticAddressBook": {
+        "remoteAddrs": []
+      }
+    },
     "libp2p": {
       "bootstrapAddrs": [
         "/dns/spire-bootstrap1.makerops.services/tcp/8000/p2p/12D3KooWRfYU5FaY9SmJcRD5Ku7c1XMBRqV6oM4nsnGQ1QRakSJi",

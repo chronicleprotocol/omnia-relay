@@ -72,15 +72,15 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "oracle-suite": {
-        "branch": "develop",
+        "branch": "sc-1780",
         "description": null,
         "homepage": null,
         "owner": "chronicleprotocol",
         "repo": "oracle-suite",
-        "rev": "07b574554e03936f3338f98752d8cd055f067ae8",
-        "sha256": "0lhlg8wjhsvv212n3ppvvqmz59372kfx0dpzvn25axdvbb9wl1nj",
+        "rev": "669a7c41773fe4a13529043f4fba020a18c0b6e2",
+        "sha256": "15k8knsqjalhzy9mdmmi8ppq776gqr05dh15b495vy3bbxzzrrbw",
         "type": "tarball",
-        "url": "https://github.com/chronicleprotocol/oracle-suite/archive/07b574554e03936f3338f98752d8cd055f067ae8.tar.gz",
+        "url": "https://github.com/chronicleprotocol/oracle-suite/archive/669a7c41773fe4a13529043f4fba020a18c0b6e2.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "setzer": {
@@ -89,10 +89,11 @@
         "homepage": "",
         "owner": "chronicleprotocol",
         "repo": "setzer",
-        "rev": "v0.7.0",
-        "sha256": "1qcm8xf3h79llxy8wlxmh5qxc8vygpjkhppgxv5aafjcmd2373b6",
+        "rev": "9e70a93e789dd540cd802dde47ad559c28460393",
+        "sha256": "0qjm261m6psyc5i28hlwz0nn1q3z7bvy79pp70xpn6fb112j8dq0",
         "type": "tarball",
-        "url": "https://github.com/chronicleprotocol/setzer/archive/v0.7.0.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+        "url": "https://github.com/chronicleprotocol/setzer/archive/9e70a93e789dd540cd802dde47ad559c28460393.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz",
+        "version": "0.8.0"
     }
 }
