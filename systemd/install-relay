@@ -92,11 +92,23 @@ copyOmniaConf() {
 		local _savedConfig
 		_savedConfig="$(jq -c '{ethereum} | del(.. | nulls)' "$OMNIA_CONFIG")"
 		if [[ -n "$_savedConfig" ]]; then
-			configUpdates+=(". * $_savedConfig")
+			configUpdates+=(". + $_savedConfig")
 		fi
 	fi
 
-	sudo cp -v "${SHARE_DIR}/$1" "$OMNIA_CONFIG" >&2
+	local chainType="$1"
+	local chainVariant="$2"
+
+	if [[ "$chainType" != "ethereum" ]]; then
+		local _copyData
+		_copyData="$(jq -c '{feeds,scuttlebotIdMap,transports} | del(.. | nulls)' "${SHARE_DIR}/relay-ethereum-$chainVariant.json")"
+		configUpdates+=(". + $_copyData")
+	fi
+
+	local _omniaConfig="relay-$chainType-$chainVariant.json"
+	[[ -f "${SHARE_DIR}/$_omniaConfig" ]] || { echo >&2 "ERROR: $_omniaConfig not found in ${SHARE_DIR}"; exit 1; }
+
+	sudo cp -v "${SHARE_DIR}/$_omniaConfig" "$OMNIA_CONFIG" >&2
 	sudo chmod u+w "$OMNIA_CONFIG" >&2
 
 	configUpdates+=('.options.logFormat = "text"')
@@ -212,7 +224,7 @@ copyTorConfig() {
 
 installConfigs() {
 	echo "INSTALL CONFIGS: START"
-	copyOmniaConf "relay-$chainType-$chainVariant.json"
+	copyOmniaConf "$chainType" "$chainVariant"
 	copySsbConf
 	copySpireConf
 	copyTorConfig
@@ -231,8 +243,6 @@ installServices() {
 if [[ "$1" =~ ^ethereum|optimism|arbitrum$ ]]; then
 	chainType="$1"
 	shift
-elif [[ -z "$1" ]]; then
-	chainType="ethereum"
 else
 	echo >&2 "Chain type must be one of [ethereum,optimism,arbitrum]"
 fi
@@ -279,7 +289,7 @@ while [[ -n "$1" ]]; do
 			shift
 			;;
 		--feed-map)
-			configOverrides+=(".services.scuttlebotIdMap = $2")
+			configOverrides+=(".scuttlebotIdMap = $2")
 			shift
 			;;
 		--pairs)

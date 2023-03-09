@@ -284,9 +284,7 @@ importOptionsEnv () {
 
 importServicesEnv () {
 	local _config="$1"
-	local _services=$(jq -S '.services' <<<"$_config")
-
-	SSB_ID_MAP="$(jq -S '.scuttlebotIdMap // {}' <<<"$_services")"
+	SSB_ID_MAP="$(jq -S '.scuttlebotIdMap // {}' <<<"$_config")"
 	jq -e 'type == "object"' <<<"$SSB_ID_MAP" >/dev/null 2>&1 || errors+=("Error - Scuttlebot ID mapping is invalid, must be Ethereum address -> Scuttlebot id.")
 	export SSB_ID_MAP
 
