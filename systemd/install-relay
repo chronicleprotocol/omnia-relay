@@ -166,12 +166,13 @@ copySpireConf() {
 		sudo mv -f "${SPIRE_CONFIG%.conf}.json" "$SPIRE_CONFIG"
 	fi
 
-	if [[ -f "$SPIRE_CONFIG" ]]; then
-		local _savedConfig
-		_savedConfig="$(jq '{ethereum} | del(.. | nulls)' "$SPIRE_CONFIG")"
-		if [[ -n "$_savedConfig" ]]; then
-			spireConfigOverrides+=(". * $_savedConfig")
-		fi
+	if [[ -f "$OMNIA_CONFIG" ]]; then
+		local _omniaConfig
+		_omniaConfig="$(jq '.' -c "$OMNIA_CONFIG")"
+
+		spireConfigOverrides+=(".feeds = $(jq '.feeds | unique' -c <<<"$_omniaConfig")")
+		spireConfigOverrides+=(".spire.pairs = $(jq '.pairs | keys | unique[] | sub("/";"")' -c <<<"$_omniaConfig" | jq -s -c)")
+		spireConfigOverrides+=(".ethereum = $(jq '.ethereum' -c <<<"$_omniaConfig")")
 	fi
 
 	sudo cp -v "${SHARE_DIR}/spire.json" "$SPIRE_CONFIG" >&2
@@ -261,8 +262,6 @@ while [[ -n "$1" ]]; do
 			;;
 		--from)
 			configOverrides+=(".ethereum.from = \"$2\"")
-			spireConfigOverrides+=(".ethereum.from = \"$2\"")
-			spireConfigUpdates+=(".feeds += [\"$2\"]")
 			shift
 			;;
 		--keystore)
@@ -277,7 +276,6 @@ while [[ -n "$1" ]]; do
 			;;
 		--feed-list)
 			configOverrides+=(".feeds = $2")
-			spireConfigOverrides+=(".feeds = $2")
 			shift
 			;;
 		--feed-map)
@@ -298,10 +296,6 @@ while [[ -n "$1" ]]; do
 			;;
 		--spire-seed)
 			spireConfigOverrides+=(".transport.libp2p.privKeySeed = \"$2\"")
-			shift
-			;;
-		--spire-pairs)
-			spireConfigOverrides+=(".spire.pairs = $2")
 			shift
 			;;
 		--network)
