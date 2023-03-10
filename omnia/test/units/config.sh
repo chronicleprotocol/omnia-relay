@@ -9,7 +9,7 @@ lib_path="$root_path/lib"
 
 . "$root_path/lib/tap.sh" 2>/dev/null || . "$root_path/test/tap.sh"
 
-_validConfig="$(jq -c . "$test_path/configs/oracle-relay-test.conf")"
+_validConfig="$(jq -c . "$test_path/configs/oracle-relay-test.json")"
 
 # Setting up clean vars
 ETH_GAS_SOURCE=""

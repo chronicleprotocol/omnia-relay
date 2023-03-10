@@ -37,7 +37,7 @@ ssb-server() {
 export -f ssb-server
 
 export OMNIA_VERSION="dev-test"
-export OMNIA_CONFIG="$test_path/configs/oracle-relay-test.conf"
+export OMNIA_CONFIG="$test_path/configs/oracle-relay-test.json"
 export ETH_FROM="0x1f8fbe73820765677e68eb6e933dcb3c94c9b708"
 export ETH_KEYSTORE="$test_path/tests/resources/keys"
 export ETH_PASSWORD="$test_path/tests/resources/password"

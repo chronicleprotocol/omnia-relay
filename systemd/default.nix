@@ -11,17 +11,15 @@ stdenv.mkDerivation rec {
   installPhase = let
     path = lib.makeBinPath passthru.runtimeDeps;
     locales = lib.optionalString (glibcLocales != null) ''--set LOCALE_ARCHIVE "${glibcLocales}"/lib/locale/locale-archive'';
-    omniaConf = ../omnia/config;
   in ''
     mkdir -p $out/{bin,share}
     cp -t $out/bin install-relay
-    cp -t $out/share *.service *.json *.ini ${omniaConf}/*.json
+    cp -t $out/share *.service *.json *.ini ${omnia}/*.json
 
     wrapProgram "$out/bin/install-relay" \
       --prefix PATH : "${path}" \
       --set SHARE_PATH "$out/share" \
       --set OMNIA_PATH "${omnia}/bin/omnia" \
-      --set OMNIA_LIB_PATH "${omnia}/lib" \
       --set SPIRE_PATH "${oracle-suite}/bin/spire" \
       --set SPLITTER_PATH "${oracle-suite}/bin/rpc-splitter" \
       --set SSB_PATH "${ssb-server}/bin/ssb-server" \
@@ -35,7 +33,7 @@ stdenv.mkDerivation rec {
   '';
 
   meta = {
-    description = "Installer script for Omnia service";
+    description = "Installer script for Omnia Relay service";
     homepage = "https://github.com/makerdao/oracles-v2";
     license = lib.licenses.gpl3;
     inherit version;

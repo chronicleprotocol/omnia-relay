@@ -6,7 +6,6 @@ set -eo pipefail
 SCRIPT_DIR="$(cd "${BASH_SOURCE[0]%/*}" && pwd)"
 TARGET_DIR="${TARGET_DIR:-/etc/systemd/system}"
 SHARE_DIR="${SHARE_PATH:-$SCRIPT_DIR}"
-OMNIA_LIB_PATH="${OMNIA_LIB_PATH:-$SCRIPT_DIR/../omnia/lib}"
 
 export SSB_PATH="${SSB_PATH:-$(command -v ssb-server)}"
 export SSB_CONF="${SSB_CONF:-$(dirname "$(command -v ssb-server)")/.ssb/config}"
