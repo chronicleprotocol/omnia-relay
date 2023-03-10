@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   in ''
     mkdir -p $out/{bin,share}
     cp -t $out/bin install-relay
-    cp -t $out/share *.service *.json *.ini ${omnia}/*.json
+    cp -t $out/share *.service *.json *.ini ${omnia}/config/*.json
 
     wrapProgram "$out/bin/install-relay" \
       --prefix PATH : "${path}" \
