@@ -6,6 +6,7 @@ lib_path="$root_path/lib"
 
 . "$lib_path/log.sh"
 . "$lib_path/transport.sh"
+. "$lib_path/util.sh"
 
 . "$root_path/tap.sh" 2>/dev/null || . "$root_path/test/tap.sh"
 
@@ -36,7 +37,7 @@ ssb-server() {
 export -f ssb-server
 
 export OMNIA_VERSION="dev-test"
-export OMNIA_CONFIG="$test_path/configs/oracle-transport-ssb-test.conf"
+export OMNIA_CONFIG="$test_path/configs/oracle-relay-test.json"
 export ETH_FROM="0x1f8fbe73820765677e68eb6e933dcb3c94c9b708"
 export ETH_KEYSTORE="$test_path/tests/resources/keys"
 export ETH_PASSWORD="$test_path/tests/resources/password"
@@ -46,7 +47,7 @@ currentTime=$(timestamp 0)
 export PATH="${0%/*/*}/exec:${PATH}"
 
 rm -f $wdir/output
-transport-ssb pull "0x1f8fbe73820765677e68eb6e933dcb3c94c9b708" BTC/USD > $wdir/output
+transport-ssb pull "$ETH_FROM" BTC/USD > $wdir/output
 assert "pulled price message" json '.type' <<<'"BTCUSD"'
 
 echo '{}' > $wdir/output

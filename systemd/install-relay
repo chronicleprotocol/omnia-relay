@@ -6,11 +6,12 @@ set -eo pipefail
 SCRIPT_DIR="$(cd "${BASH_SOURCE[0]%/*}" && pwd)"
 TARGET_DIR="${TARGET_DIR:-/etc/systemd/system}"
 SHARE_DIR="${SHARE_PATH:-$SCRIPT_DIR}"
-OMNIA_LIB_PATH="${OMNIA_LIB_PATH:-$SCRIPT_DIR/../omnia/lib}"
-OMNIA_CONF_PATH="$SCRIPT_DIR/../share"
 
 export SSB_PATH="${SSB_PATH:-$(command -v ssb-server)}"
 export SSB_CONF="${SSB_CONF:-$(dirname "$(command -v ssb-server)")/.ssb/config}"
+
+export TORPROXY_PATH=${TORPROXY_PATH:-$(command -v tor)}
+export TORPROXY_CONFIG=${TORPROXY_CONFIG:-/etc/torrc}
 
 export SPIRE_PATH="${SPIRE_PATH:-$(command -v spire)}"
 export SPIRE_CONFIG="${SPIRE_CONFIG:-/etc/spire.conf}"
@@ -63,14 +64,8 @@ subst() {
 $USER
 $SSB_PATH $SSB_CONF $SSB_CAPS $SSB_KEYS $SSB_PORT $SSB_HOST
 $OMNIA_PATH $OMNIA_CONFIG
-$GOFER_PATH $GOFER_CONFIG
-$GOFER_LOG_VERBOSITY $GOFER_LOG_FORMAT
-$SPIRE_PATH $SPIRE_CONFIG
-$SPIRE_LOG_VERBOSITY $SPIRE_LOG_FORMAT
-$LEELOO_PATH $LEELOO_CONFIG
-$LEELOO_LOG_VERBOSITY $LEELOO_LOG_FORMAT
-$SPLITTER_PATH $SPLITTER_URLS
-$SPLITTER_LOG_VERBOSITY $SPLITTER_LOG_FORMAT
+$SPIRE_PATH $SPIRE_CONFIG $SPIRE_LOG_VERBOSITY $SPIRE_LOG_FORMAT
+$TORPROXY_PATH $TORPROXY_CONFIG
 ' < "$2" | sudo tee "$target" >&2
 
 	echo >&2 "$name -> $target"
@@ -95,15 +90,26 @@ copyOmniaConf() {
 		local _savedConfig
 		_savedConfig="$(jq -c '{ethereum} | del(.. | nulls)' "$OMNIA_CONFIG")"
 		if [[ -n "$_savedConfig" ]]; then
-			configUpdates+=(". * $_savedConfig")
+			configUpdates+=(". + $_savedConfig")
 		fi
 	fi
 
-	sudo cp -v "$OMNIA_CONF_PATH/$1" "$OMNIA_CONFIG" >&2
+	local chainType="$1"
+	local chainVariant="$2"
+
+	if [[ "$chainType" != "ethereum" ]]; then
+		local _copyData
+		_copyData="$(jq -c '{feeds,scuttlebotIdMap,transports} | del(.. | nulls)' "${SHARE_DIR}/relay-ethereum-$chainVariant.json")"
+		configUpdates+=(". + $_copyData")
+	fi
+
+	local _omniaConfig="relay-$chainType-$chainVariant.json"
+	[[ -f "${SHARE_DIR}/$_omniaConfig" ]] || { echo >&2 "ERROR: $_omniaConfig not found in ${SHARE_DIR}"; exit 1; }
+
+	sudo cp -v "${SHARE_DIR}/$_omniaConfig" "$OMNIA_CONFIG" >&2
 	sudo chmod u+w "$OMNIA_CONFIG" >&2
 
 	configUpdates+=('.options.logFormat = "text"')
-	configOverrides+=(".options.setzerEthRpcUrl = \"http://${SPLITTER_RPC_ADDR}\"")
 
 	for i in "${!configUpdates[@]}"; do
 		echo >&2 "${configUpdates[$i]}"
@@ -134,7 +140,7 @@ copySsbConf() {
 	if [[ -f $SSB_CONF ]]; then
 		updatedConf=$(jq . "$SSB_CONF")
 	fi
-	[[ -n $updatedConf ]] || updatedConf=$(jq . "$SHARE_DIR/ssb-config.json")
+	[[ -n $updatedConf ]] || updatedConf=$(jq . "${SHARE_DIR}/ssb-config.json")
 
 	for i in "${!ssbConfigUpdates[@]}"; do
 		updatedConf=$(jq -c "${ssbConfigUpdates[$i]}" <<< "$updatedConf")
@@ -169,15 +175,16 @@ copySpireConf() {
 		sudo mv -f "${SPIRE_CONFIG%.conf}.json" "$SPIRE_CONFIG"
 	fi
 
-	if [[ -f "$SPIRE_CONFIG" ]]; then
-		local _savedConfig
-		_savedConfig="$(jq '{ethereum} | del(.. | nulls)' "$SPIRE_CONFIG")"
-		if [[ -n "$_savedConfig" ]]; then
-			spireConfigOverrides+=(". * $_savedConfig")
-		fi
+	if [[ -f "$OMNIA_CONFIG" ]]; then
+		local _omniaConfig
+		_omniaConfig="$(jq '.' -c "$OMNIA_CONFIG")"
+
+		spireConfigOverrides+=(".feeds = $(jq '.scuttlebotIdMap | keys' -c <<<"$_omniaConfig")")
+		spireConfigOverrides+=(".spire.pairs = $(jq '.pairs | keys | unique[] | sub("/";"")' -c <<<"$_omniaConfig" | jq -s -c)")
+		spireConfigOverrides+=(".ethereum = $(jq '.ethereum' -c <<<"$_omniaConfig")")
 	fi
 
-	sudo cp -v "$SHARE_DIR/spire.json" "$SPIRE_CONFIG" >&2
+	sudo cp -v "${SHARE_DIR}/spire.json" "$SPIRE_CONFIG" >&2
 	sudo chmod u+w "$SPIRE_CONFIG" >&2
 
 	for i in "${!spireConfigUpdates[@]}"; do
@@ -192,27 +199,47 @@ copySpireConf() {
 	echo >&2 "SPIRE_CONFIG: DONE"
 }
 
+copyTorConfig() {
+	echo >&2 "TORPROXY_CONFIG: START"
+
+	sudo cp -v "${SHARE_DIR}/torproxy.ini" "${TORPROXY_CONFIG}" >&2
+	sudo chmod u+w "${TORPROXY_CONFIG}" >&2
+
+	# shellcheck disable=SC2174
+	mkdir -m 0700 -p "$HOME"/.tor/{run,data} > /dev/null
+
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceDir ${HOME}/.tor"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServicePort 8888 127.0.0.1:8800"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceVersion 3"
+
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "ControlSocket ${HOME}/.tor/run/control"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "CookieAuthFile ${HOME}/.tor/run/control.authcookie"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "DataDirectory ${HOME}/.tor/data"
+
+	echo >&2 "TORPROXY_CONFIG: DONE"
+}
+
 installConfigs() {
 	echo "INSTALL CONFIGS: START"
-	copyOmniaConf "relay-$chainType-$chainVariant.json"
+	copyOmniaConf "$chainType" "$chainVariant"
 	copySsbConf
 	copySpireConf
+	copyTorConfig
 	echo "INSTALL CONFIGS: DONE"
 }
 
 installServices() {
 	echo "INSTALL SERVICES: START"
-	subst spire-agent "$SHARE_DIR"/spire-agent.service
-	subst ssb-server "$SHARE_DIR"/ssb-server.service
-	subst omnia "$SHARE_DIR"/omnia.service
+	subst torproxy "${SHARE_DIR}"/torproxy.service
+	subst spire-agent "${SHARE_DIR}"/spire-agent.service
+	subst ssb-server "${SHARE_DIR}"/ssb-server.service
+	subst omnia "${SHARE_DIR}"/omnia.service
 	echo "INSTALL SERVICES: DONE"
 }
 
 if [[ "$1" =~ ^ethereum|optimism|arbitrum$ ]]; then
 	chainType="$1"
 	shift
-elif [[ -z "$1" ]]; then
-	chainType="ethereum"
 else
 	echo >&2 "Chain type must be one of [ethereum,optimism,arbitrum]"
 fi
@@ -242,8 +269,6 @@ while [[ -n "$1" ]]; do
 			;;
 		--from)
 			configOverrides+=(".ethereum.from = \"$2\"")
-			spireConfigOverrides+=(".ethereum.from = \"$2\"")
-			spireConfigUpdates+=(".feeds += [\"$2\"]")
 			shift
 			;;
 		--keystore)
@@ -256,13 +281,8 @@ while [[ -n "$1" ]]; do
 			spireConfigOverrides+=(".ethereum.password = \"$2\"")
 			shift
 			;;
-		--feed-list)
-			configOverrides+=(".feeds = $2")
-			spireConfigOverrides+=(".feeds = $2")
-			shift
-			;;
 		--feed-map)
-			configOverrides+=(".services.scuttlebotIdMap = $2")
+			configOverrides+=(".scuttlebotIdMap = $2")
 			shift
 			;;
 		--pairs)
@@ -279,10 +299,6 @@ while [[ -n "$1" ]]; do
 			;;
 		--spire-seed)
 			spireConfigOverrides+=(".transport.libp2p.privKeySeed = \"$2\"")
-			shift
-			;;
-		--spire-pairs)
-			spireConfigOverrides+=(".spire.pairs = $2")
 			shift
 			;;
 		--network)
@@ -362,6 +378,8 @@ done
 
 installConfigs
 installServices
+
+"$OMNIA_PATH" info
 
 echo >&2 "To (re)start Omnia now (and auto-start on reboot) run:"
 echo "systemctl daemon-reload # Reload systemd services"

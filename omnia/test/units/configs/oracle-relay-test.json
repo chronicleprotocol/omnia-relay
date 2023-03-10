@@ -1,0 +1,44 @@
+{
+  "mode": "relay",
+  "ethereum": {
+    "from": "0x",
+    "keystore": "",
+    "password": "",
+    "network": "mainnet",
+    "gasPrice": {
+			"source": "node",
+      "multiplier": 1,
+      "priority": "fast"
+		}
+  },
+  "transports":["ssb"],
+  "scuttlebotIdMap": {
+    "0x1f8fbe73820765677e68eb6e933dcb3c94c9b708": "@i40pt/QgqhjIUOvq2166WZr5bXMGt/8/Zr5GD8yQRvA=.ed25519"
+  },
+  "options": {
+    "interval": 60,
+    "msgLimit": 20,
+    "verbose": true,
+    "logFormat": "text"
+  },
+  "pairs": {
+    "BAL/USD": {
+      "oracle": "0x1D36d59e5a22cB51B30Bb6fA73b62D73f4A11745",
+      "oracleSpread": 4.0,
+      "oracleExpiration": 15500,
+      "msgExpiration": 1800
+    },
+    "BAT/USD": {
+      "oracle": "0x18B4633D6E39870f398597f3c1bA8c4A41294966",
+      "oracleSpread": 4.0,
+      "oracleExpiration": 15500,
+      "msgExpiration": 1800
+    },
+    "BTC/USD": {
+      "oracle": "0xe0F30cb149fAADC7247E953746Be9BbBB6B5751f",
+      "oracleSpread": 1.0,
+      "oracleExpiration": 15500,
+      "msgExpiration": 1800
+    }
+  }
+}

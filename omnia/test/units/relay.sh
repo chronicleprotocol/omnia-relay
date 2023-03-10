@@ -14,7 +14,7 @@ lib_path="$root_path/lib"
 # Setting up relay configuration
 OMNIA_MODE="RELAY"
 
-_json=$(jq -e . "$test_path/configs/oracle-relay-test.conf")
+_json=$(jq -e . "$test_path/configs/oracle-relay-test.json")
 importAssetPairsEnv "$_json"
 
 assert "assetPairs assigned" match "3" < <(capture printf ${#assetPairs[@]})

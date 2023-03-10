@@ -9,7 +9,7 @@ lib_path="$root_path/lib"
 
 . "$root_path/lib/tap.sh" 2>/dev/null || . "$root_path/test/tap.sh"
 
-_validConfig="$(jq -c . "$test_path/configs/oracle-relay-test.conf")"
+_validConfig="$(jq -c . "$test_path/configs/oracle-relay-test.json")"
 
 # Setting up clean vars
 ETH_GAS_SOURCE=""
@@ -103,22 +103,12 @@ errors=()
 assert "importMode: fails on invalid mode" fail importMode '{"mode":"blahblah"}'
 
 errors=()
-assert "importMode: works correctly on feed" run importMode '{"mode":"feed"}'
+assert "importMode: fails on feed" fail importMode '{"mode":"feed"}'
 assert "importMode: works correctly on relay" run importMode '{"mode":"relay"}'
 
 export OMNIA_MODE=""
-assert "importMode: works correctly" run importMode '{"mode":"feed"}'
-assert "importMode: actualy sets ENV var in upper case" match "^FEED$" <<<$OMNIA_MODE
-
-# importSources tests
-assert "importSources: sets custom sources" run importSources '{"sources":["blah", "another"]}'
-assert "importSources: set source in array" match "^blah$" <<<${OMNIA_FEED_SOURCES[0]}
-assert "importSources: set source in array" match "^another$" <<<${OMNIA_FEED_SOURCES[1]}
-
-export OMNIA_FEED_SOURCES=()
-assert "importSources: sets default values if nothing given" run importSources '{}'
-assert "importSources: set gofer as first element in array" match "^gofer$" <<<${OMNIA_FEED_SOURCES[0]}
-assert "importSources: set setzer as second element in array" match "^setzer$" <<<${OMNIA_FEED_SOURCES[1]}
+assert "importMode: works correctly" run importMode '{"mode":"relay"}'
+assert "importMode: actualy sets ENV var in upper case" match "^RELAY$" <<<$OMNIA_MODE
 
 # importGasPrice function
 export ETH_GAS_SOURCE=""
@@ -149,93 +139,20 @@ assert "importGasPrice: set given tipMultiplier to '2'" match "^2$" <<<$ETH_TIP_
 assert "importGasPrice: set given priority to 'fastest'" match "^fastest$" <<<$ETH_GAS_PRIORITY
 
 # importFeeds function
-assert "importFeeds: fails on invalid address" fail importFeeds '{"feeds":["asdfasd"]}'
-assert "importFeeds: works with correct address" run importFeeds '{"feeds":["0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77"]}'
+assert "importFeeds: fails on invalid address" fail importFeeds '{"address":"@uqOcvBdpBXWNCm5WhjALbtyR8szWpihH/CVyNdycncQ=.ed25519","0x75FBD0aaCe74Fb05ef0F6C0AC63d26071Eb750c9":"@wrrCKd56pV5CNSVh+fkVh6iaRUG6VA5I5VDEo8XOn5E=.ed25519","0x0c4FC7D66b7b6c684488c1F218caA18D4082da18":"@4ltZDRGFi4eHGGlXmLC8olcEs8XNZCXfvx+3V3S2HgY=.ed25519","0xC50DF8b5dcb701aBc0D6d1C7C99E6602171Abbc4":"@gt/2QK1AdSCLX3zRJQV6wRRsoxgohChCpjmNOOLUAA4=.ed25519"}'
+assert "importFeeds: works with correct address" run importFeeds '{"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77":"@uqOcvBdpBXWNCm5WhjALbtyR8szWpihH/CVyNdycncQ=.ed25519"}'
 assert "importFeeds: puled address" match "^0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77$" <<<${feeds[0]}
 
 # importServicesEnv function
-assert "importServicesEnv: fails on non object scuttlebotIdMap" fail importServicesEnv '{"services":{"scuttlebotIdMap":[]}}'
+assert "importServicesEnv: fails on non object scuttlebotIdMap" fail importServicesEnv '{"scuttlebotIdMap":[]}'
 
 errors=()
-assert "importServicesEnv: runs without errors if no address provided" run importServicesEnv '{"services":{"scuttlebotIdMap":{}}}'
+assert "importServicesEnv: runs without errors if no address provided" run importServicesEnv '{"scuttlebotIdMap":{}}'
 
 export SSB_ID_MAP=""
-importServicesEnv '{"services":{}}'
+importServicesEnv '{}'
 assert "importServicesEnv: set default ssb details if non provided" match "{}" <<<$SSB_ID_MAP
 
 export SSB_ID_MAP=""
-importServicesEnv '{"services":{"scuttlebotIdMap":{"address":"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77"}}}'
+importServicesEnv '{"scuttlebotIdMap":{"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77":"@wrrCKd56pV5CNSVh+fkVh6iaRUG6VA5I5VDEo8XOn5E=.ed25519"}}'
 assert "importServicesEnv: set provided address to SSB_ID_MAP" match "0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77" <<<$SSB_ID_MAP
-
-
-# importOptionsEnv function
-# Needed to check all feed config parsing as well.
-export OMNIA_MODE="FEED"
-
-errors=()
-assert "importOptionsEnv: fails on invalid interval" fail importOptionsEnv '{"options":{"interval":"asdf"}}'
-assert "importOptionsEnv: shows correct error on invalid interval" match "^Error - Interval param is invalid" <<<${errors[0]}
-
-errors=()
-assert "importOptionsEnv: fails on invalid msgLimit" fail importOptionsEnv '{"options":{"interval":1,"msgLimit":"asdf"}}'
-assert "importOptionsEnv: shows correct error on invalid msgLimit" match "^Error - Msg Limit param is invalid" <<<${errors[0]}
-
-errors=()
-export OMNIA_VERBOSE=""
-assert "importOptionsEnv: fails on invalid verbose" fail importOptionsEnv '{"options":{"interval":1,"msgLimit":1,"verbose":"asdf"}}'
-assert "importOptionsEnv: shows correct error on invalid verbose" match "^Error - Verbose param is invalid" <<<${errors[0]}
-export OMNIA_VERBOSE="false"
-
-errors=()
-export OMNIA_LOG_FORMAT=""
-assert "importOptionsEnv: fails on invalid logFormat" fail importOptionsEnv '{"options":{"interval":1,"msgLimit":1,"logFormat":"asdf"}}'
-assert "importOptionsEnv: shows correct error on invalid logFormat" match "^Error - LogFormat param is invalid" <<<${errors[0]}
-export OMNIA_LOG_FORMAT="text"
-
-errors=()
-assert "importOptionsEnv: fails on invalid srcTimeout" fail importOptionsEnv '{"options":{"interval":1,"msgLimit":1,"srcTimeout":"asdf"}}'
-assert "importOptionsEnv: shows correct error on invalid srcTimeout" match "^Error - Src Timeout param is invalid" <<<${errors[0]}
-
-errors=()
-_json='{"options":{"interval":1,"msgLimit":1,"srcTimeout":1,"setzerTimeout":"asdf"}}'
-assert "importOptionsEnv: fails on invalid setzerTimeout" fail importOptionsEnv "$_json"
-assert "importOptionsEnv: shows correct error on invalid setzerTimeout" match "^Error - Setzer Timeout param is invalid" <<<${errors[0]}
-
-errors=()
-_json='{"options":{"interval":1,"msgLimit":1,"srcTimeout":1,"setzerTimeout":1,"setzerCacheExpiry":"asdf"}}'
-assert "importOptionsEnv: fails on invalid setzerCacheExpiry" fail importOptionsEnv "$_json"
-assert "importOptionsEnv: shows correct error on invalid setzerCacheExpiry" match "^Error - Setzer Cache Expiry param is invalid" <<<${errors[0]}
-
-errors=()
-_json='{"options":{"interval":1,"msgLimit":1,"srcTimeout":1,"setzerTimeout":1,"setzerCacheExpiry":10,"setzerMinMedian":"asdf"}}'
-assert "importOptionsEnv: fails on invalid setzerMinMedian" fail importOptionsEnv "$_json"
-assert "importOptionsEnv: shows correct error on invalid setzerMinMedian" match "^Error - Setzer Minimum Median param is invalid" <<<${errors[0]}
-
-errors=()
-export SETZER_ETH_RPC_URL=""
-_json='{"options":{"interval":1,"msgLimit":1,"srcTimeout":1,"setzerTimeout":1,"setzerCacheExpiry":10,"setzerMinMedian":3,"setzerEthRpcUrl":""}}'
-assert "importOptionsEnv: fails on missing setzerEthRpcUrl" fail importOptionsEnv "$_json"
-assert "importOptionsEnv: shows correct error on invalid setzerEthRpcUrl" match "^Error - Setzer ethereum RPC address is not set" <<<${errors[0]}
-
-
-errors=()
-export OMNIA_INTERVAL=""
-export OMNIA_MSG_LIMIT=""
-export OMNIA_VERBOSE=""
-export OMNIA_LOG_FORMAT=""
-export OMNIA_SRC_TIMEOUT=""
-export SETZER_TIMEOUT=""
-export SETZER_CACHE_EXPIRY=""
-export SETZER_MIN_MEDIAN=""
-export SETZER_ETH_RPC_URL=""
-_json='{"options":{"interval":1,"msgLimit":2,"verbose":"true","logFormat":"json","srcTimeout":3,"setzerTimeout":4,"setzerCacheExpiry":10,"setzerMinMedian":3,"setzerEthRpcUrl":"http://localhost:4040"}}'
-assert "importOptionsEnv: runs on correct with valid options" run importOptionsEnv $_json
-assert "importOptionsEnv: set correct value to OMNIA_INTERVAL" match "^1$" <<<$OMNIA_INTERVAL
-assert "importOptionsEnv: set correct value to OMNIA_MSG_LIMIT" match "^2$" <<<$OMNIA_MSG_LIMIT
-assert "importOptionsEnv: set correct value to OMNIA_VERBOSE" match "^true$" <<<$OMNIA_VERBOSE
-assert "importOptionsEnv: set correct value to OMNIA_LOG_FORMAT" match "^json$" <<<$OMNIA_LOG_FORMAT
-assert "importOptionsEnv: set correct value to OMNIA_SRC_TIMEOUT" match "^3$" <<<$OMNIA_SRC_TIMEOUT
-assert "importOptionsEnv: set correct value to SETZER_TIMEOUT" match "^4$" <<<$SETZER_TIMEOUT
-assert "importOptionsEnv: set correct value to SETZER_CACHE_EXPIRY" match "^10$" <<<$SETZER_CACHE_EXPIRY
-assert "importOptionsEnv: set correct value to SETZER_MIN_MEDIAN" match "^3$" <<<$SETZER_MIN_MEDIAN
-assert "importOptionsEnv: set correct value to SETZER_ETH_RPC_URL" match "^http://localhost:4040$" <<<$SETZER_ETH_RPC_URL

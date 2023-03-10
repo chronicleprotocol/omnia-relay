@@ -22,13 +22,13 @@
     "0xfadad77b3a7e5a84a1f7ded081e785585d4ffaf3"
   ],
   "pairs": {
-    "BTCUSD": {
+    "BTC/USD": {
       "oracle": "0x9b637fDF5482340C823930366464c146f318b896",
       "oracleSpread": 0.5,
       "oracleExpiration": 15500,
       "msgExpiration": 1800
     },
-    "ETHUSD": {
+    "ETH/USD": {
       "oracle": "0x659D4343c656bEafb2441C50a0fb3d513374fe66",
       "oracleSpread": 0.5,
       "oracleExpiration": 15500,

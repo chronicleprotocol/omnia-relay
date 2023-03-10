@@ -1,10 +1,10 @@
 { stdenv, makeWrapper, symlinkJoin, lib, glibcLocales, coreutils, bash, parallel, bc, jq, gnused,
 datamash, gnugrep, curl,
 ethsign, foundry, setzer,
-ssb-server, oracle-suite, oracleVersion ? "0.0.0-dev" }:
+ssb-server, oracle-suite }:
 stdenv.mkDerivation rec {
   name = "omnia-${version}";
-  version = lib.fileContents ./version;
+  version = lib.fileContents ../version;
   src = ./.;
 
   buildInputs =
@@ -31,15 +31,15 @@ stdenv.mkDerivation rec {
   in ''
     mkdir -p $out
 
-    cp -r ./version $out/version
     cp -r ./lib $out/lib
+    cp -r ./config $out/config
 
     cp -r ./bin $out/bin
     chmod +x $out/bin/*
     find $out/bin -type f | while read -r x; do
       wrapProgram "$x" \
         --prefix PATH : "$out/exec:${path}" \
-        --set ORACLE_VERSION "${oracleVersion}" \
+        --set OMNIA_VERSION "${version}" \
         ${locales}
     done
 
@@ -53,8 +53,8 @@ stdenv.mkDerivation rec {
   '';
 
   meta = {
-    description = "Omnia is a Feed and Relay Oracle client";
-    homepage = "https://github.com/chronicleprotocol/omnia";
+    description = "Omnia is a Relay client";
+    homepage = "https://github.com/chronicleprotocol/omnia-relay";
     license = lib.licenses.gpl3;
     inherit version;
   };

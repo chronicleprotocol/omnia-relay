@@ -90,3 +90,13 @@ signMessage () {
 	ethsign message --from "$ETH_FROM" --key-store "$ETH_KEYSTORE" --passphrase-file "$ETH_PASSWORD" \
 		--data "$_data" 2> >(STDERR_DATA="$(cat)"; [[ -z "$STDERR_DATA" ]] || verbose "ethsign [stderr]" "$STDERR_DATA")
 }
+
+getId() {
+	local _addr="$1"
+	if [[ $_addr =~ ^@ ]]
+	then
+		echo "$_addr"
+	else
+		jq -er --arg a "$_addr" '.[$a]' <<<"$SSB_ID_MAP"
+	fi
+}

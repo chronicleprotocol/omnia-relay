@@ -19,28 +19,24 @@ importEnv () {
 	_json=$(jq -e . < "$config")
 
 	importMode "$_json" || return 1
-	importSources "$_json" || return 1
 	importTransports "$_json" || return 1
 	importEthereumEnv "$_json" || return 1
 	importAssetPairsEnv "$_json" || return 1
 	importOptionsEnv "$_json" || return 1
 	importServicesEnv "$_json" || return 1
-
-	if [[ "$OMNIA_MODE" == "RELAY" ]]; then
-		importFeeds "$_json" || return 1
-	fi
+	importFeeds "$SSB_ID_MAP" || return 1
 }
 
 importMode () {
 	local _json="$1"
 	OMNIA_MODE="$(jq -r '.mode' <<<"$_json" | tr '[:lower:]' '[:upper:]')"
-	[[ "$OMNIA_MODE" =~ ^(FEED|RELAY){1}$ ]] || { error "Error - Invalid Mode param, valid values are 'FEED' and 'RELAY'"; return 1; }
+	[[ "$OMNIA_MODE" == "RELAY" ]] || { error "Error - Invalid Mode param, valid value is 'RELAY'"; return 1; }
 	export OMNIA_MODE
 }
 
 importSources () {
 	local _json="$1"
-	readarray -t OMNIA_FEED_SOURCES < <(jq -r '.sources[]' <<<"$_json")
+	readarray -t OMNIA_FEED_SOURCES < <(jq -c '.sources // []' <<<"$_json" | jq -r '.[]')
 	[[ "${#OMNIA_FEED_SOURCES[@]}" -gt 0 ]] || OMNIA_FEED_SOURCES=("gofer" "setzer")
 }
 
@@ -203,9 +199,9 @@ importAssetPairsRelay () {
 
 importFeeds () {
 	local _config="$1"
-	local _json
 
-	readarray -t feeds < <(jq -r '.feeds[]' <<<"$_config")
+	readarray -t feeds < <(jq -r 'keys[]' <<<"$_config")
+
 	for feed in "${feeds[@]}"; do
 		[[ $feed =~ ^@[a-zA-Z0-9+/]{43}=.ed25519$ \
 		|| $feed =~ ^0x[0-9a-fA-F]{40}$ \
@@ -263,10 +259,9 @@ importOptionsEnv () {
 		export ETH_GAS
 	fi
 
-	local _chainType
-	_chainType="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
-	_chainType="${_chainType,,}"
-	case "${_chainType}" in
+	ETH_CHAIN_TYPE="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
+	ETH_CHAIN_TYPE="${ETH_CHAIN_TYPE,,}"
+	case "${ETH_CHAIN_TYPE}" in
 		ethereum)
 			ETH_TX_TYPE=2
 			;;
@@ -278,15 +273,14 @@ importOptionsEnv () {
 			;;
 	esac
 	export ETH_TX_TYPE
+	export ETH_CHAIN_TYPE
 
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }
 
 importServicesEnv () {
 	local _config="$1"
-	local _services=$(jq -S '.services' <<<"$_config")
-
-	SSB_ID_MAP="$(jq -S '.scuttlebotIdMap // {}' <<<"$_services")"
+	SSB_ID_MAP="$(jq -S '.scuttlebotIdMap // {}' <<<"$_config")"
 	jq -e 'type == "object"' <<<"$SSB_ID_MAP" >/dev/null 2>&1 || errors+=("Error - Scuttlebot ID mapping is invalid, must be Ethereum address -> Scuttlebot id.")
 	export SSB_ID_MAP
 
