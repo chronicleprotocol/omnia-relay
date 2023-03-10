@@ -36,7 +36,7 @@ initEnv () {
 	echo ""
 	echo "  Peers:"
 	for feed in "${feeds[@]}"; do
-		printf '                                   %s\n' "$feed"
+		echo "$feed => $(getId "$feed")"
 	done
 	echo ""
 
@@ -61,14 +61,6 @@ initEnv () {
 	echo ""
 	echo "-------------------------- INITIALIZATION COMPLETE ---------------------------"
 	echo ""
-}
-
-runFeed () {
-	while true; do
-		readSourcesAndBroadcastAllPriceMessages
-		verbose "Sleeping for $OMNIA_INTERVAL seconds..."
-		sleep "$OMNIA_INTERVAL"
-	done
 }
 
 runRelay () {

@@ -27,7 +27,7 @@ importEnv () {
 	importServicesEnv "$_json" || return 1
 
 	if [[ "$OMNIA_MODE" == "RELAY" ]]; then
-		importFeeds "$_json" || return 1
+		importFeeds "$SSB_ID_MAP" || return 1
 	fi
 }
 
@@ -203,9 +203,9 @@ importAssetPairsRelay () {
 
 importFeeds () {
 	local _config="$1"
-	local _json
 
-	readarray -t feeds < <(jq -r '.feeds[]' <<<"$_config")
+	readarray -t feeds < <(jq -r 'keys[]' <<<"$_config")
+
 	for feed in "${feeds[@]}"; do
 		[[ $feed =~ ^@[a-zA-Z0-9+/]{43}=.ed25519$ \
 		|| $feed =~ ^0x[0-9a-fA-F]{40}$ \
