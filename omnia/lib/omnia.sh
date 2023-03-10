@@ -29,33 +29,24 @@ initEnv () {
 	echo "  ETH_FROM                = $ETH_FROM"
 	echo "  ETH_GAS_SOURCE          = $ETH_GAS_SOURCE"
 	echo "  ETH_GAS                 = $ETH_GAS"
+	echo "  ETH_CHAIN_TYPE          = $ETH_CHAIN_TYPE"
 	echo "  ETH_TX_TYPE             = $ETH_TX_TYPE"
 	echo "  ETH_MAXPRICE_MULTIPLIER = $ETH_MAXPRICE_MULTIPLIER"
 	[[ $ETH_GAS_SOURCE != "node" ]] && \
 	echo "  ETH_GAS_PRIORITY        = $ETH_GAS_PRIORITY"
 	echo ""
-	echo "  Peers:"
+	echo "  FEEDS:"
 	for feed in "${feeds[@]}"; do
-		echo "$feed => $(getId "$feed")"
+		echo "    $feed => $(getId "$feed")"
 	done
 	echo ""
 
-	echo "ORACLE"
+	echo "ORACLES"
 	for assetPair in "${assetPairs[@]}"; do
 		printf '   %s\n' "$assetPair"
-
-		[[ "$OMNIA_MODE" == "RELAY" ]] && \
 		printf '      Oracle Address:              %s\n' "$(getOracleContract "$assetPair")"
-
 		printf '      Message Expiration:          %s seconds\n' "$(getMsgExpiration "$assetPair")"
-
-		[[ $OMNIA_MODE == "FEED" ]] && \
-		printf '      Message Spread:              %s %% \n' "$(getMsgSpread "$assetPair")"
-
-		[[ "$OMNIA_MODE" == "RELAY" ]] && \
 		printf '      Oracle Expiration:           %s seconds\n' "$(getOracleExpiration "$assetPair")"
-
-		[[ "$OMNIA_MODE" == "RELAY" ]] && \
 		printf '      Oracle Spread:               %s %% \n' "$(getOracleSpread "$assetPair")"
 	done
 	echo ""
@@ -70,3 +61,4 @@ runRelay () {
 		sleep "$OMNIA_INTERVAL"
     done
 }
+

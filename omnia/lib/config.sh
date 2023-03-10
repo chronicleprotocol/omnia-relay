@@ -19,7 +19,6 @@ importEnv () {
 	_json=$(jq -e . < "$config")
 
 	importMode "$_json" || return 1
-	importSources "$_json" || return 1
 	importTransports "$_json" || return 1
 	importEthereumEnv "$_json" || return 1
 	importAssetPairsEnv "$_json" || return 1
@@ -37,7 +36,7 @@ importMode () {
 
 importSources () {
 	local _json="$1"
-	readarray -t OMNIA_FEED_SOURCES < <(jq -r '.sources[]' <<<"$_json")
+	readarray -t OMNIA_FEED_SOURCES < <(jq -c '.sources // []' <<<"$_json" | jq -r '.[]')
 	[[ "${#OMNIA_FEED_SOURCES[@]}" -gt 0 ]] || OMNIA_FEED_SOURCES=("gofer" "setzer")
 }
 
@@ -260,10 +259,9 @@ importOptionsEnv () {
 		export ETH_GAS
 	fi
 
-	local _chainType
-	_chainType="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
-	_chainType="${_chainType,,}"
-	case "${_chainType}" in
+	ETH_CHAIN_TYPE="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
+	ETH_CHAIN_TYPE="${ETH_CHAIN_TYPE,,}"
+	case "${ETH_CHAIN_TYPE}" in
 		ethereum)
 			ETH_TX_TYPE=2
 			;;
@@ -275,6 +273,7 @@ importOptionsEnv () {
 			;;
 	esac
 	export ETH_TX_TYPE
+	export ETH_CHAIN_TYPE
 
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }

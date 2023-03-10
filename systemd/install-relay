@@ -282,10 +282,6 @@ while [[ -n "$1" ]]; do
 			spireConfigOverrides+=(".ethereum.password = \"$2\"")
 			shift
 			;;
-		--feed-list)
-			configOverrides+=(".feeds = $2")
-			shift
-			;;
 		--feed-map)
 			configOverrides+=(".scuttlebotIdMap = $2")
 			shift
