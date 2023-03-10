@@ -66,7 +66,6 @@ $USER
 $SSB_PATH $SSB_CONF $SSB_CAPS $SSB_KEYS $SSB_PORT $SSB_HOST
 $OMNIA_PATH $OMNIA_CONFIG
 $SPIRE_PATH $SPIRE_CONFIG $SPIRE_LOG_VERBOSITY $SPIRE_LOG_FORMAT
-$SPLITTER_PATH $SPLITTER_URLS $SPLITTER_LOG_VERBOSITY $SPLITTER_LOG_FORMAT
 $TORPROXY_PATH $TORPROXY_CONFIG
 ' < "$2" | sudo tee "$target" >&2
 
@@ -112,7 +111,6 @@ copyOmniaConf() {
 	sudo chmod u+w "$OMNIA_CONFIG" >&2
 
 	configUpdates+=('.options.logFormat = "text"')
-	configOverrides+=(".options.setzerEthRpcUrl = \"http://${SPLITTER_RPC_ADDR}\"")
 
 	for i in "${!configUpdates[@]}"; do
 		echo >&2 "${configUpdates[$i]}"
