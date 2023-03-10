@@ -25,16 +25,13 @@ importEnv () {
 	importAssetPairsEnv "$_json" || return 1
 	importOptionsEnv "$_json" || return 1
 	importServicesEnv "$_json" || return 1
-
-	if [[ "$OMNIA_MODE" == "RELAY" ]]; then
-		importFeeds "$SSB_ID_MAP" || return 1
-	fi
+	importFeeds "$SSB_ID_MAP" || return 1
 }
 
 importMode () {
 	local _json="$1"
 	OMNIA_MODE="$(jq -r '.mode' <<<"$_json" | tr '[:lower:]' '[:upper:]')"
-	[[ "$OMNIA_MODE" =~ ^(FEED|RELAY){1}$ ]] || { error "Error - Invalid Mode param, valid values are 'FEED' and 'RELAY'"; return 1; }
+	[[ "$OMNIA_MODE" == "RELAY" ]] || { error "Error - Invalid Mode param, valid value is 'RELAY'"; return 1; }
 	export OMNIA_MODE
 }
 

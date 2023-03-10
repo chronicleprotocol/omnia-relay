@@ -182,7 +182,7 @@ copySpireConf() {
 		local _omniaConfig
 		_omniaConfig="$(jq '.' -c "$OMNIA_CONFIG")"
 
-		spireConfigOverrides+=(".feeds = $(jq '.feeds | unique' -c <<<"$_omniaConfig")")
+		spireConfigOverrides+=(".feeds = $(jq '.scuttlebotIdMap | keys' -c <<<"$_omniaConfig")")
 		spireConfigOverrides+=(".spire.pairs = $(jq '.pairs | keys | unique[] | sub("/";"")' -c <<<"$_omniaConfig" | jq -s -c)")
 		spireConfigOverrides+=(".ethereum = $(jq '.ethereum' -c <<<"$_omniaConfig")")
 	fi
@@ -385,6 +385,8 @@ done
 
 installConfigs
 installServices
+
+"$OMNIA_PATH" info
 
 echo >&2 "To (re)start Omnia now (and auto-start on reboot) run:"
 echo "systemctl daemon-reload # Reload systemd services"

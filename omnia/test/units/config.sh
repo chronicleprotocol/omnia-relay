@@ -149,22 +149,22 @@ assert "importGasPrice: set given tipMultiplier to '2'" match "^2$" <<<$ETH_TIP_
 assert "importGasPrice: set given priority to 'fastest'" match "^fastest$" <<<$ETH_GAS_PRIORITY
 
 # importFeeds function
-assert "importFeeds: fails on invalid address" fail importFeeds '{"feeds":["asdfasd"]}'
-assert "importFeeds: works with correct address" run importFeeds '{"feeds":["0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77"]}'
+assert "importFeeds: fails on invalid address" fail importFeeds '{"address":"@uqOcvBdpBXWNCm5WhjALbtyR8szWpihH/CVyNdycncQ=.ed25519","0x75FBD0aaCe74Fb05ef0F6C0AC63d26071Eb750c9":"@wrrCKd56pV5CNSVh+fkVh6iaRUG6VA5I5VDEo8XOn5E=.ed25519","0x0c4FC7D66b7b6c684488c1F218caA18D4082da18":"@4ltZDRGFi4eHGGlXmLC8olcEs8XNZCXfvx+3V3S2HgY=.ed25519","0xC50DF8b5dcb701aBc0D6d1C7C99E6602171Abbc4":"@gt/2QK1AdSCLX3zRJQV6wRRsoxgohChCpjmNOOLUAA4=.ed25519"}'
+assert "importFeeds: works with correct address" run importFeeds '{"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77":"@uqOcvBdpBXWNCm5WhjALbtyR8szWpihH/CVyNdycncQ=.ed25519","0x75FBD0aaCe74Fb05ef0F6C0AC63d26071Eb750c9":"@wrrCKd56pV5CNSVh+fkVh6iaRUG6VA5I5VDEo8XOn5E=.ed25519","0x0c4FC7D66b7b6c684488c1F218caA18D4082da18":"@4ltZDRGFi4eHGGlXmLC8olcEs8XNZCXfvx+3V3S2HgY=.ed25519","0xC50DF8b5dcb701aBc0D6d1C7C99E6602171Abbc4":"@gt/2QK1AdSCLX3zRJQV6wRRsoxgohChCpjmNOOLUAA4=.ed25519"}'
 assert "importFeeds: puled address" match "^0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77$" <<<${feeds[0]}
 
 # importServicesEnv function
-assert "importServicesEnv: fails on non object scuttlebotIdMap" fail importServicesEnv '{"services":{"scuttlebotIdMap":[]}}'
+assert "importServicesEnv: fails on non object scuttlebotIdMap" fail importServicesEnv '{"scuttlebotIdMap":[]}'
 
 errors=()
-assert "importServicesEnv: runs without errors if no address provided" run importServicesEnv '{"services":{"scuttlebotIdMap":{}}}'
+assert "importServicesEnv: runs without errors if no address provided" run importServicesEnv '{"scuttlebotIdMap":{}}'
 
 export SSB_ID_MAP=""
-importServicesEnv '{"services":{}}'
+importServicesEnv '{}'
 assert "importServicesEnv: set default ssb details if non provided" match "{}" <<<$SSB_ID_MAP
 
 export SSB_ID_MAP=""
-importServicesEnv '{"services":{"scuttlebotIdMap":{"address":"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77"}}}'
+importServicesEnv '{"scuttlebotIdMap":"0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77"}'
 assert "importServicesEnv: set provided address to SSB_ID_MAP" match "0xBb94f7C5f14fd29EE744b5A54f05f29aE488Fe77" <<<$SSB_ID_MAP
 
 
