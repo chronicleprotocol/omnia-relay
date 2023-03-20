@@ -13,7 +13,7 @@ services:
   omnia:
     depends_on:
       - ssb_server
-    image: ghcr.io/chronicleprotocol/omnia:latest
+    image: ghcr.io/chronicleprotocol/omnia_relay:latest
     volumes:
       - "~/.ethereum:/home/omnia/.ethereum"
       - "~/omnia-config/omnia.json:/home/omnia/omnia.json"
@@ -27,7 +27,7 @@ services:
       SSB_HOST: "ssb-server.local"
       SSB_PORT: "8007"
       OMNIA_VERBOSE: "true"
-      OMNIA_MODE: "relayer"
+      OMNIA_MODE: "RELAY"
 #      OMNIA_LOG_FORMAT: "json"
 
 networks:

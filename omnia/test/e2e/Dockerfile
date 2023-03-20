@@ -1,4 +1,4 @@
-FROM ghcr.io/chronicleprotocol/omnia:dev
+FROM ghcr.io/chronicleprotocol/omnia_relay:dev
 
 USER root
 
@@ -44,16 +44,16 @@ ENV ORIGIN_THEGRAPH_URL=$SMOCKER \
 
 # Omnia configuration
 ENV OMNIA_INTERVAL=1 \
-    OMNIA_MODE="FEED" \
-    OMNIA_CONFIG="/app/test/e2e/config/feed.conf" \
+    OMNIA_MODE="RELAY" \
+    OMNIA_CONFIG="/app/test/e2e/config/relay.conf" \
     OMNIA_TRANSPORT_E2E_FILE="/app/test/e2e/transport.log"
 
 ENV GETH_RPC_URL="http://geth.local:8545"
 
-COPY ./test/e2e/bin/transport-e2e /usr/local/bin/
-COPY ./test/e2e/bin/sign-message /usr/local/bin/
+COPY ./omnia/test/e2e/bin/transport-e2e /usr/local/bin/
+COPY ./omnia/test/e2e/bin/sign-message /usr/local/bin/
 # Copy sources
-COPY . /app
+COPY ./omnia/ /app
 
 WORKDIR /app/test/e2e
 RUN go mod download
