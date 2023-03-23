@@ -1,10 +1,10 @@
-{ stdenv, lib, makeWrapper, shellcheck, glibcLocales, coreutils, gettext, jq, omnia, ssb-server, oracle-suite, tor }:
+{ stdenv, lib, makeWrapper, shellcheck, glibcLocales, coreutils, gettext, jq, omnia, ssb-server, oracle-suite, tor, keeman }:
 stdenv.mkDerivation rec {
   name = "install-relay-${version}";
   version = lib.fileContents ../version;
   src = ./.;
 
-  passthru.runtimeDeps = [ coreutils gettext jq ];
+  passthru.runtimeDeps = [ coreutils gettext jq keeman ];
   nativeBuildInputs = [ makeWrapper shellcheck ];
 
   buildPhase = "true";

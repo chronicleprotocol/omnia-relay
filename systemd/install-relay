@@ -206,15 +206,36 @@ copyTorConfig() {
 	sudo chmod u+w "${TORPROXY_CONFIG}" >&2
 
 	# shellcheck disable=SC2174
-	mkdir -m 0700 -p "$HOME"/.tor/{run,data} > /dev/null
+	mkdir -m 0700 -p "$HOME"/.tor/{run,data,srv} > /dev/null
 
-	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceDir ${HOME}/.tor"
-	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServicePort 8888 127.0.0.1:8800"
-	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceVersion 3"
+	if ! [[ -f "${HOME}/.tor/srv/hostname" ]]; then
+		local _HD_SEED
+		_HD_SEED="$(keeman gen -k 8)"
+		local _TOR_JSON
+		_TOR_JSON="$(keeman der -f onion <<<"$_HD_SEED")"
+		jq '.hostname' -r <<<"$_TOR_JSON" > "${HOME}/.tor/srv/hostname"
+		jq '.public_key' -r <<<"$_TOR_JSON" > "${HOME}/.tor/srv/$(jq '.prefix' -r <<<"$_TOR_JSON")_public_key"
+		jq '.secret_key' -r <<<"$_TOR_JSON" > "${HOME}/.tor/srv/$(jq '.prefix' -r <<<"$_TOR_JSON")_secret_key"
+
+		chmod 0600 "${HOME}/.tor/srv/"*
+
+		echo >&2
+		echo >&2
+		echo >&2 "----------------------------------------------------------------------------------------------------"
+		echo >&2 "Your key generation seed phrase is:"
+		echo >&2 "${_HD_SEED}"
+		echo >&2 "----------------------------------------------------------------------------------------------------"
+		echo >&2
+		echo >&2
+	fi
 
 	sudo tee -a "${TORPROXY_CONFIG}" <<< "ControlSocket ${HOME}/.tor/run/control"
 	sudo tee -a "${TORPROXY_CONFIG}" <<< "CookieAuthFile ${HOME}/.tor/run/control.authcookie"
 	sudo tee -a "${TORPROXY_CONFIG}" <<< "DataDirectory ${HOME}/.tor/data"
+
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceDir ${HOME}/.tor/srv"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServicePort 8888 127.0.0.1:8800"
+	sudo tee -a "${TORPROXY_CONFIG}" <<< "HiddenServiceVersion 3"
 
 	echo >&2 "TORPROXY_CONFIG: DONE"
 }
