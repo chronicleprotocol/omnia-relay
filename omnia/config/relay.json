@@ -1,5 +1,5 @@
 {
-  "mode": "relay",
+  "mode": "RELAY",
   "ethereum": {
     "type": "ethereum",
     "from": "0x1bb90cde8a032cb4963813a5b4db4981afa5b9c6",
