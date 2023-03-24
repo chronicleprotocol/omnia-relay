@@ -34,10 +34,11 @@ in rec {
   setzer = pkgs.callPackage sources.setzer { };
   ethsign = pkgs.callPackage (import ../ethsign) { };
   foundry = pkgs.callPackage (import ../foundry) { inherit (nixpkgs2) pkgs; };
+  keeman = pkgs.callPackage (import ../keeman) { inherit (nixpkgs2) pkgs; };
 
   omnia = pkgs.callPackage (import ../omnia) {
     inherit ssb-server oracle-suite setzer ethsign foundry;
   };
 
-  install-relay = pkgs.callPackage ../systemd { inherit omnia ssb-server oracle-suite; };
+  install-relay = pkgs.callPackage ../systemd { inherit omnia ssb-server oracle-suite keeman; };
 }

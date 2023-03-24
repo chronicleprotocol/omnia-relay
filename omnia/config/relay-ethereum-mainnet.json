@@ -75,8 +75,8 @@
     "IBTA/USD": {
       "msgExpiration": 1800,
       "oracle": "0xa5d4a331125D7Ece7252699e2d3CB1711950fBc8",
-      "oracleExpiration": 14400,
-      "oracleSpread": 3
+      "oracleExpiration": 86400,
+      "oracleSpread": 10
     },
     "LINK/USD": {
       "msgExpiration": 1800,
@@ -99,7 +99,7 @@
     "MKR/USD": {
       "msgExpiration": 1800,
       "oracle": "0xdbbe5e9b1daa91430cf0772fcebe53f6c6f137df",
-      "oracleExpiration": 14400,
+      "oracleExpiration": 86400,
       "oracleSpread": 3
     },
     "RETH/USD": {
