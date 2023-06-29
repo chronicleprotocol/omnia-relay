@@ -73,9 +73,11 @@ ENV OMNIA_CONFIG=${HOME}/omnia.json \
   ETH_GAS=7000000 \
   CHLORIDE_JS='1'
 
+#COPY ./omnia/docker/spire/config/client.hcl ${SPIRE_CONFIG}
+#COPY ./omnia/docker/gofer/client.hcl ${GOFER_CONFIG}
+COPY --from=go-builder /go/src/oracle-suite/config.hcl ${SPIRE_CONFIG}
+COPY --from=go-builder /go/src/oracle-suite/config.hcl ${GOFER_CONFIG}
 COPY ./omnia/config/relay.json ${OMNIA_CONFIG}
-COPY ./omnia/docker/spire/config/client.hcl ${SPIRE_CONFIG}
-COPY ./omnia/docker/gofer/client.hcl ${GOFER_CONFIG}
 
 WORKDIR ${HOME}
 COPY ./omnia/docker/keystore/ .ethereum/keystore/
