@@ -11,25 +11,16 @@ RUN git clone https://github.com/chronicleprotocol/omnia.git . \
   && go mod vendor \
   && go build .
 
-# Building gofer & spire
-WORKDIR /go/src/oracle-suite
-ARG ORACLE_SUITE_REF="tags/v0.11.0-dev.7"
-RUN git clone https://github.com/chronicleprotocol/oracle-suite.git . \
-  && git checkout --quiet ${ORACLE_SUITE_REF}
-
-RUN go mod vendor \
-  && go build ./cmd/spire \
-  && go build ./cmd/gofer
-
-# SSB Go client have been moved to new repo
+## SSB Go Client
 WORKDIR /go/src/ssb
 ARG SSB_RPC_CLIENT_REF="tags/v0.1.0"
 RUN git clone https://github.com/chronicleprotocol/ssb.git . \
-  && git checkout --quiet ${SSB_RPC_CLIENT_REF}
-
-RUN cd ssb-rpc-client && \
+  && git checkout --quiet ${SSB_RPC_CLIENT_REF} \
+  && cd ssb-rpc-client && \
   go mod vendor \
   && go build .
+
+FROM ghcr.io/chronicleprotocol/oracle-suite:0.11.0-dev.7 as oracle-suite
 
 # NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
 FROM ghcr.io/chronicleprotocol/omnia_base:latest
@@ -46,6 +37,11 @@ COPY --from=go-builder \
   /go/src/oracle-suite/spire \
   /go/src/oracle-suite/gofer \
   /go/src/ssb/ssb-rpc-client/ssb-rpc-client \
+  /usr/local/bin/
+
+COPY --from=oracle-suite \
+  /usr/local/bin/spire \
+  /usr/local/bin/gofer \
   /usr/local/bin/
 
 COPY ./omnia/bin /opt/omnia/bin/
@@ -73,8 +69,6 @@ ENV OMNIA_CONFIG=${HOME}/omnia.json \
   ETH_GAS=7000000 \
   CHLORIDE_JS='1'
 
-#COPY ./omnia/docker/spire/config/client.hcl ${SPIRE_CONFIG}
-#COPY ./omnia/docker/gofer/client.hcl ${GOFER_CONFIG}
 COPY --from=go-builder /go/src/oracle-suite/config.hcl ${SPIRE_CONFIG}
 COPY --from=go-builder /go/src/oracle-suite/config.hcl ${GOFER_CONFIG}
 COPY ./omnia/config/relay.json ${OMNIA_CONFIG}
