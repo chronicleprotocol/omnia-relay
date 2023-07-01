@@ -16,14 +16,14 @@ WORKDIR /go/src/ssb
 ARG SSB_RPC_CLIENT_REF="tags/v0.1.0"
 RUN git clone https://github.com/chronicleprotocol/ssb.git . \
   && git checkout --quiet ${SSB_RPC_CLIENT_REF} \
-  && cd ssb-rpc-client && \
-  go mod vendor \
+  && cd ssb-rpc-client \
+  && go mod vendor \
   && go build .
 
 FROM ghcr.io/chronicleprotocol/oracle-suite:0.11.0-dev.7 as oracle-suite
 
 # NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
-FROM ghcr.io/chronicleprotocol/omnia_base:latest
+FROM ghcr.io/chronicleprotocol/omnia_base@sha256:c4bb82b6ebe3d22646143cbc00178c7ed1b9fdb6b1633cfd87720ac188a150d5
 
 RUN apk add --update --no-cache \
   jq curl git make perl g++ ca-certificates parallel tree \
@@ -34,8 +34,6 @@ RUN apk add --update --no-cache \
 
 COPY --from=go-builder \
   /go/src/omnia/ethsign/ethsign \
-  /go/src/oracle-suite/spire \
-  /go/src/oracle-suite/gofer \
   /go/src/ssb/ssb-rpc-client/ssb-rpc-client \
   /usr/local/bin/
 
@@ -69,8 +67,8 @@ ENV OMNIA_CONFIG=${HOME}/omnia.json \
   ETH_GAS=7000000 \
   CHLORIDE_JS='1'
 
-COPY --from=go-builder /go/src/oracle-suite/config.hcl ${SPIRE_CONFIG}
-COPY --from=go-builder /go/src/oracle-suite/config.hcl ${GOFER_CONFIG}
+COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${SPIRE_CONFIG}
+COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${GOFER_CONFIG}
 COPY ./omnia/config/relay.json ${OMNIA_CONFIG}
 
 WORKDIR ${HOME}
