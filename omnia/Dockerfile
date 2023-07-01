@@ -11,15 +11,6 @@ RUN git clone https://github.com/chronicleprotocol/omnia.git . \
   && go mod vendor \
   && go build .
 
-## SSB Go Client
-WORKDIR /go/src/ssb
-ARG SSB_RPC_CLIENT_REF="tags/v0.1.0"
-RUN git clone https://github.com/chronicleprotocol/ssb.git . \
-  && git checkout --quiet ${SSB_RPC_CLIENT_REF} \
-  && cd ssb-rpc-client \
-  && go mod vendor \
-  && go build .
-
 FROM ghcr.io/chronicleprotocol/oracle-suite:0.11.0-dev.7 as oracle-suite
 
 # NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
