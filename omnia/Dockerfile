@@ -25,7 +25,6 @@ RUN apk add --update --no-cache \
 
 COPY --from=go-builder \
   /go/src/omnia/ethsign/ethsign \
-  /go/src/ssb/ssb-rpc-client/ssb-rpc-client \
   /usr/local/bin/
 
 COPY --from=oracle-suite \
@@ -33,9 +32,10 @@ COPY --from=oracle-suite \
   /usr/local/bin/gofer \
   /usr/local/bin/
 
-COPY ./omnia/bin /opt/omnia/bin/
-COPY ./omnia/exec /opt/omnia/exec/
-COPY ./omnia/lib /opt/omnia/lib/
+COPY ./omnia/bin /opt/omnia/bin
+COPY ./omnia/config /opt/omnia/config
+COPY ./omnia/exec /opt/omnia/exec
+COPY ./omnia/lib /opt/omnia/lib
 COPY ./version /opt/omnia/version
 
 # Installing setzer
@@ -51,7 +51,7 @@ RUN git clone https://github.com/chronicleprotocol/setzer.git \
 
 ENV HOME=/home/omnia
 
-ENV OMNIA_CONFIG=${HOME}/omnia.json \
+ENV OMNIA_CONFIG=/opt/omnia/config/relay.json \
   SPIRE_CONFIG=${HOME}/spire.hcl \
   GOFER_CONFIG=${HOME}/gofer.hcl \
   ETH_RPC_URL=http://geth.local:8545 \
@@ -60,7 +60,6 @@ ENV OMNIA_CONFIG=${HOME}/omnia.json \
 
 COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${SPIRE_CONFIG}
 COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${GOFER_CONFIG}
-COPY ./omnia/config/relay.json ${OMNIA_CONFIG}
 
 WORKDIR ${HOME}
 COPY ./omnia/docker/keystore/ .ethereum/keystore/

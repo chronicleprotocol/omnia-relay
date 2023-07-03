@@ -1,18 +1,6 @@
 version: '3'
 services:
-  ssb_server:
-    container_name: ssb-server.local
-    image: ghcr.io/chronicleprotocol/ssb_server:latest
-    ports:
-      - "8007:8007"
-      - "8988:8988"
-    volumes:
-      - "~/ssb-config/config:/root/.ssb/config"
-      - "~/ssb-config/secret:/root/.ssb/secret"
-
   omnia:
-    depends_on:
-      - ssb_server
     image: ghcr.io/chronicleprotocol/omnia_relay:latest
     volumes:
       - "~/.ethereum:/home/omnia/.ethereum"
@@ -28,8 +16,3 @@ services:
       SSB_PORT: "8007"
       OMNIA_VERBOSE: "true"
       OMNIA_MODE: "RELAY"
-#      OMNIA_LOG_FORMAT: "json"
-
-networks:
-  default:
-    name: omnia_network

@@ -58,23 +58,26 @@ importNetwork () {
 	[[ -z "$INFURA_KEY" ]] || [[ "$INFURA_KEY" =~ ^[0-9a-f]{32}$ ]] || errors+=("Error - Invalid Infura Key")
 	export INFURA_KEY
 
+	local _ethRpcUrl
+
 	local _network
 	_network="$(echo "$_json" | jq -r '.network')"
 	_network="${_network,,}"
 	case "${_network}" in
 		ethlive|mainnet)
-			ETH_RPC_URL="https://mainnet.infura.io/v3/$INFURA_KEY"
+			_ethRpcUrl="https://mainnet.infura.io/v3/$INFURA_KEY"
 			;;
 		ropsten|kovan|rinkeby|goerli)
-			ETH_RPC_URL="https://${_network}.infura.io/v3/$INFURA_KEY"
+			_ethRpcUrl="https://${_network}.infura.io/v3/$INFURA_KEY"
 			;;
 		*)
-			ETH_RPC_URL="$_network"
+			_ethRpcUrl="$_network"
 			;;
 	esac
+	ETH_RPC_URL="${ETH_RPC_URL:-"$_ethRpcUrl"}"
 	export ETH_RPC_URL
 
-	[[ $(getLatestBlock "$ETH_RPC_URL") =~ ^[1-9]{1,}[0-9]*$ ]] || errors+=("Error - Unable to connect to Ethereum _network.\nValid options are: ethlive, mainnet, ropsten, kovan, rinkeby, goerli, or a custom endpoint")
+	[[ $(getLatestBlock "$ETH_RPC_URL") =~ ^[1-9]{1,}[0-9]*$ ]] || errors+=("Error - Unable to connect to Ethereum _network. Valid options are: ethlive, mainnet, ropsten, kovan, rinkeby, goerli, or a custom endpoint")
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }
 
@@ -235,25 +238,7 @@ importOptionsEnv () {
 	export OMNIA_LOG_FORMAT
 
 	if [[ "$OMNIA_MODE" == "FEED" ]]; then
-		OMNIA_SRC_TIMEOUT="$(echo "$_json" | jq -S '.srcTimeout')"
-		[[ "$OMNIA_SRC_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || errors+=("Error - Src Timeout param is invalid, must be positive integer.")
-		export OMNIA_SRC_TIMEOUT
-
-		SETZER_TIMEOUT="$(echo "$_json" | jq -S '.setzerTimeout')"
-		[[ "$SETZER_TIMEOUT" =~ ^[1-9][0-9]*$ ]] || errors+=("Error - Setzer Timeout param is invalid, must be positive integer.")
-		export SETZER_TIMEOUT
-
-		SETZER_CACHE_EXPIRY="$(echo "$_json" | jq -S '.setzerCacheExpiry')"
-		[[ "$SETZER_CACHE_EXPIRY" =~ ^[1-9][0-9]*$ ]] || errors+=("Error - Setzer Cache Expiry param is invalid, must be positive integer.")
-		export SETZER_CACHE_EXPIRY
-
-		SETZER_MIN_MEDIAN="$(echo "$_json" | jq -S '.setzerMinMedian')"
-		[[ "$SETZER_MIN_MEDIAN" =~ ^[1-9][0-9]*$ ]] || errors+=("Error - Setzer Minimum Median param is invalid, must be positive integer.")
-		export SETZER_MIN_MEDIAN
-
-		SETZER_ETH_RPC_URL="$(echo "$_json" | jq -r '.setzerEthRpcUrl')"
-		[[ -n "$SETZER_ETH_RPC_URL" ]] || errors+=("Error - Setzer ethereum RPC address is not set.")
-		export SETZER_ETH_RPC_URL
+		error "Error - Mode param is invalid, must be 'relay'"
 	elif [[ "$OMNIA_MODE" == "RELAY" ]]; then
 		ETH_GAS=$(echo "$_json" | jq -r '.ethGas // 200000')
 		export ETH_GAS
@@ -261,6 +246,8 @@ importOptionsEnv () {
 
 	ETH_CHAIN_TYPE="$(echo "$_json" | jq -r '.chainType // "ethereum"')"
 	ETH_CHAIN_TYPE="${ETH_CHAIN_TYPE,,}"
+	export ETH_CHAIN_TYPE
+
 	case "${ETH_CHAIN_TYPE}" in
 		ethereum)
 			ETH_TX_TYPE=2
@@ -273,7 +260,6 @@ importOptionsEnv () {
 			;;
 	esac
 	export ETH_TX_TYPE
-	export ETH_CHAIN_TYPE
 
 	[[ -z ${errors[*]} ]] || { printf '%s\n' "${errors[@]}"; return 1; }
 }
