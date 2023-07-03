@@ -116,7 +116,19 @@ pushOraclePrice () {
 
 		# signing tx, cast dont support ethsign, so have to do it manually
 		local _txdata
-		_txdata=$(signTxBeforePush $_oracleContract $_calldata $_fees)
+		if _txdata=$(signTxBeforePush $_oracleContract $_calldata $_fees)
+		then
+			verbose "Sign $_assetPair OK"
+		else
+		  error "Sign $_assetPair Failed"
+		  return 1
+		fi
+
+		if [[ -z "$_txdata" ]]
+		then
+			error "Transaction is empty"
+			return 1
+		fi
 
 		log "Simulating $_assetPair tx..."
 		local _sim
@@ -141,6 +153,12 @@ pushOraclePrice () {
 		else
 		  error "TX $_assetPair Failed"
 		  return 1
+		fi
+
+		if [[ -z "$tx" ]]
+		then
+			error "Receipt is empty"
+			return 1
 		fi
 
 		_status="$(timeout -s9 60 ethereum receipt "$tx" status --rpc-url "$ETH_RPC_URL" )"
