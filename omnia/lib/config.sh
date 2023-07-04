@@ -58,11 +58,11 @@ importNetwork () {
 	[[ -z "$INFURA_KEY" ]] || [[ "$INFURA_KEY" =~ ^[0-9a-f]{32}$ ]] || errors+=("Error - Invalid Infura Key")
 	export INFURA_KEY
 
-	local _ethRpcUrl
-
 	local _network
 	_network="$(echo "$_json" | jq -r '.network')"
 	_network="${_network,,}"
+
+	local _ethRpcUrl
 	case "${_network}" in
 		ethlive|mainnet)
 			_ethRpcUrl="https://mainnet.infura.io/v3/$INFURA_KEY"

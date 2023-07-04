@@ -68,21 +68,27 @@ assert "importNetwork: valid infuraKey should be set as ENV var" match "^305ac4c
 assert "importNetwork: custom network should be set correctly" run importNetwork $_network_json
 assert "importNetwork: custom network value should be set to ENV var ETH_RPC_URL" match "^http://geth.local:8545$" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: ethlive netork shouldn't crash" run importNetwork '{"network":"ethlive"}'
 assert "importNetwork: ethlive network should expand to full url" match "^https://mainnet.infura.io" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: mainnet netork shouldn't crash" run importNetwork '{"network":"mainnet"}'
 assert "importNetwork: mainnet network should expand to full url" match "^https://mainnet.infura.io" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: ropsten netork shouldn't crash" run importNetwork '{"network":"ropsten"}'
 assert "importNetwork: ropsten network should expand to full url" match "^https://ropsten.infura.io" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: kovan netork shouldn't crash" run importNetwork '{"network":"kovan"}'
 assert "importNetwork: kovan network should expand to full url" match "^https://kovan.infura.io" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: rinkeby netork shouldn't crash" run importNetwork '{"network":"rinkeby"}'
 assert "importNetwork: rinkeby network should expand to full url" match "^https://rinkeby.infura.io" <<<$ETH_RPC_URL
 
+unset ETH_RPC_URL
 assert "importNetwork: goerli netork shouldn't crash" run importNetwork '{"network":"goerli"}'
 assert "importNetwork: goerli network should expand to full url" match "^https://goerli.infura.io" <<<$ETH_RPC_URL
 

@@ -3,18 +3,15 @@ RUN apk --no-cache add git
 
 ARG CGO_ENABLED=0
 
-WORKDIR /go/src/omnia
-ARG ETHSIGN_REF="tags/v1.13.3"
-RUN git clone https://github.com/chronicleprotocol/omnia.git . \
-  && git checkout --quiet ${ETHSIGN_REF} \
-  && cd ethsign \
-  && go mod vendor \
-  && go build .
+COPY ./ethsign /go/src/ethsign
+WORKDIR /go/src/ethsign
+RUN go mod vendor
+RUN go build .
 
-FROM ghcr.io/chronicleprotocol/oracle-suite:0.11.0-dev.7 as oracle-suite
-FROM ghcr.io/chronicleprotocol/spire:sha-499bf03 as oracle-suite-spire
-# NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
-FROM ghcr.io/chronicleprotocol/omnia_base@sha256:c4bb82b6ebe3d22646143cbc00178c7ed1b9fdb6b1633cfd87720ac188a150d5
+FROM ghcr.io/chronicleprotocol/gofer:sha-0aac781d as oracle-suite-gofer
+FROM ghcr.io/chronicleprotocol/spire:sha-0aac781d as oracle-suite-spire
+
+FROM ghcr.io/chronicleprotocol/omnia_base:v1.10.4
 
 RUN apk add --update --no-cache \
   jq curl git make perl g++ ca-certificates parallel tree \
@@ -24,10 +21,10 @@ RUN apk add --update --no-cache \
   jshon agrep datamash
 
 COPY --from=go-builder \
-  /go/src/omnia/ethsign/ethsign \
+  /go/src/ethsign/ethsign \
   /usr/local/bin/
 
-COPY --from=oracle-suite \
+COPY --from=oracle-suite-gofer \
   /usr/local/bin/gofer \
   /usr/local/bin/
 
@@ -61,8 +58,8 @@ ENV OMNIA_CONFIG=/opt/omnia/config/relay.json \
   ETH_GAS=7000000 \
   CHLORIDE_JS='1'
 
-COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${SPIRE_CONFIG}
-COPY --from=oracle-suite /usr/share/oracle-suite/config.hcl ${GOFER_CONFIG}
+COPY --from=oracle-suite-spire /usr/share/oracle-suite/config.hcl ${SPIRE_CONFIG}
+COPY --from=oracle-suite-gofer /usr/share/oracle-suite/config.hcl ${GOFER_CONFIG}
 
 WORKDIR ${HOME}
 COPY ./omnia/docker/keystore/ .ethereum/keystore/
