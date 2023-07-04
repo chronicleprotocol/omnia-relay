@@ -12,7 +12,7 @@ RUN git clone https://github.com/chronicleprotocol/omnia.git . \
   && go build .
 
 FROM ghcr.io/chronicleprotocol/oracle-suite:0.11.0-dev.7 as oracle-suite
-
+FROM ghcr.io/chronicleprotocol/spire:sha-499bf03 as oracle-suite-spire
 # NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
 FROM ghcr.io/chronicleprotocol/omnia_base@sha256:c4bb82b6ebe3d22646143cbc00178c7ed1b9fdb6b1633cfd87720ac188a150d5
 
@@ -28,8 +28,11 @@ COPY --from=go-builder \
   /usr/local/bin/
 
 COPY --from=oracle-suite \
-  /usr/local/bin/spire \
   /usr/local/bin/gofer \
+  /usr/local/bin/
+
+COPY --from=oracle-suite-spire \
+  /usr/local/bin/spire \
   /usr/local/bin/
 
 COPY ./omnia/bin /opt/omnia/bin

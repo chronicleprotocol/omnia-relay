@@ -1,11 +1,11 @@
 {
   "mode": "relay",
   "ethereum": {
-    "type": "ethereum",
-    "from": "0x1bb90cde8a032cb4963813a5b4db4981afa5b9c6",
-    "keystore": "/home/omnia/.ethereum/keystore",
-    "password": "/home/omnia/.ethereum/keystore/password",
-    "network": "https://eth-goerli-dev.tooling.chroniclelabs.io/",
+    "type": "",
+    "from": "",
+    "keystore": "",
+    "password": "",
+    "network": "",
     "gasPrice": {
       "multiplier": 1,
       "source": "node"
