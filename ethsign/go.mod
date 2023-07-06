@@ -3,7 +3,7 @@ module github.com/dapphub/ethsign
 go 1.18
 
 require (
-	github.com/ethereum/go-ethereum v1.10.17
+	github.com/ethereum/go-ethereum v1.10.22
 	golang.org/x/crypto v0.0.0-20220511200225-c6db032c6c88
 	gopkg.in/urfave/cli.v1 v1.20.0
 )
@@ -17,7 +17,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/karalabe/usb v0.0.2 // indirect
 	github.com/rjeczalik/notify v0.9.2 // indirect
-	golang.org/x/sys v0.0.0-20220503163025-988cb79eb6c6 // indirect
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
 	golang.org/x/term v0.0.0-20220411215600-e5f449aeb171 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 )

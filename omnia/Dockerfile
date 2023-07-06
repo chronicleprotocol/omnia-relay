@@ -3,36 +3,15 @@ RUN apk --no-cache add git
 
 ARG CGO_ENABLED=0
 
-WORKDIR /go/src/omnia
-ARG ETHSIGN_REF="tags/v1.13.3"
-RUN git clone https://github.com/chronicleprotocol/omnia.git . \
-  && git checkout --quiet ${ETHSIGN_REF} \
-  && cd ethsign \
-  && go mod vendor \
-  && go build .
+COPY ./ethsign /go/src/ethsign
+WORKDIR /go/src/ethsign
+RUN go mod vendor
+RUN go build .
 
-# Building gofer & spire
-WORKDIR /go/src/oracle-suite
-ARG ORACLE_SUITE_REF="tags/v0.10.0"
-RUN git clone https://github.com/chronicleprotocol/oracle-suite.git . \
-  && git checkout --quiet ${ORACLE_SUITE_REF}
+FROM ghcr.io/chronicleprotocol/gofer:sha-0aac781d as oracle-suite-gofer
+FROM ghcr.io/chronicleprotocol/spire:sha-0aac781d as oracle-suite-spire
 
-RUN go mod vendor \
-  && go build ./cmd/spire \
-  && go build ./cmd/gofer
-
-# SSB Go client have been moved to new repo
-WORKDIR /go/src/ssb
-ARG SSB_RPC_CLIENT_REF="tags/v0.1.0"
-RUN git clone https://github.com/chronicleprotocol/ssb.git . \
-  && git checkout --quiet ${SSB_RPC_CLIENT_REF}
-
-RUN cd ssb-rpc-client && \
-  go mod vendor \
-  && go build .
-
-# NOTE: ghcr.io/chronicleprotocol/omnia_base:latest is built in `omnia-feed` repo.
-FROM ghcr.io/chronicleprotocol/omnia_base:latest
+FROM ghcr.io/chronicleprotocol/omnia_base:v1.10.4
 
 RUN apk add --update --no-cache \
   jq curl git make perl g++ ca-certificates parallel tree \
@@ -42,15 +21,21 @@ RUN apk add --update --no-cache \
   jshon agrep datamash
 
 COPY --from=go-builder \
-  /go/src/omnia/ethsign/ethsign \
-  /go/src/oracle-suite/spire \
-  /go/src/oracle-suite/gofer \
-  /go/src/ssb/ssb-rpc-client/ssb-rpc-client \
+  /go/src/ethsign/ethsign \
   /usr/local/bin/
 
-COPY ./omnia/bin /opt/omnia/bin/
-COPY ./omnia/exec /opt/omnia/exec/
-COPY ./omnia/lib /opt/omnia/lib/
+COPY --from=oracle-suite-gofer \
+  /usr/local/bin/gofer \
+  /usr/local/bin/
+
+COPY --from=oracle-suite-spire \
+  /usr/local/bin/spire \
+  /usr/local/bin/
+
+COPY ./omnia/bin /opt/omnia/bin
+COPY ./omnia/config /opt/omnia/config
+COPY ./omnia/exec /opt/omnia/exec
+COPY ./omnia/lib /opt/omnia/lib
 COPY ./version /opt/omnia/version
 
 # Installing setzer
@@ -66,16 +51,15 @@ RUN git clone https://github.com/chronicleprotocol/setzer.git \
 
 ENV HOME=/home/omnia
 
-ENV OMNIA_CONFIG=${HOME}/omnia.json \
+ENV OMNIA_CONFIG=/opt/omnia/config/relay.json \
   SPIRE_CONFIG=${HOME}/spire.hcl \
   GOFER_CONFIG=${HOME}/gofer.hcl \
   ETH_RPC_URL=http://geth.local:8545 \
   ETH_GAS=7000000 \
   CHLORIDE_JS='1'
 
-COPY ./omnia/config/relay.json ${OMNIA_CONFIG}
-COPY ./omnia/docker/spire/config/client.hcl ${SPIRE_CONFIG}
-COPY ./omnia/docker/gofer/client.hcl ${GOFER_CONFIG}
+COPY --from=oracle-suite-spire /usr/share/oracle-suite/config.hcl ${SPIRE_CONFIG}
+COPY --from=oracle-suite-gofer /usr/share/oracle-suite/config.hcl ${GOFER_CONFIG}
 
 WORKDIR ${HOME}
 COPY ./omnia/docker/keystore/ .ethereum/keystore/

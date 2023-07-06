@@ -1,52 +1,22 @@
 #!/usr/bin/env bash
 set -xeuo pipefail
+# semver: 3.4.0
+
+# bump to next major
+_VERSION=$(semver bump major  "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
 
 # bump to next minor
-_VERSION=$(semver -i minor "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
+_VERSION=$(semver bump minor  "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
 
 # bump to next patch
-_VERSION=$(semver -i "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
+_VERSION=$(semver bump patch  "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
 
 # bump PRE version
-_VERSION=$(semver -i prerelease --preid pre "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
+_VERSION=$(semver bump prerel "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
 
-# Describe change in a commit
-git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version
+# bump PRE version
+_VERSION=$(semver bump prerel dev.0 "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version
 
-# Tag version
-git tag "v$(head -1 ./version | tr -d '\n')"
-
-# Push to origin
-git push --atomic origin "$(git rev-parse --abbrev-ref HEAD)" "v$(head -1 ./version | tr -d '\n')"
-
-# RC version bump & tag & push
-_VERSION=$(semver -i prerelease --preid rc "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version \
-&& git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version \
+git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version \
 && git tag "v$(head -1 ./version | tr -d '\n')" \
 && git push --atomic origin "$(git rev-parse --abbrev-ref HEAD)" "v$(head -1 ./version | tr -d '\n')"
-
-# PATCH version bump & tag & push
-_VERSION=$(semver -i "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version \
-&& git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version \
-&& git tag "v$(head -1 ./version | tr -d '\n')" \
-&& git push --atomic origin "$(git rev-parse --abbrev-ref HEAD)" "v$(head -1 ./version | tr -d '\n')"
-
-# BUMP DEV
-_VERSION=$(semver -i prerelease --preid dev "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version \
-&& git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version ./nix/sources.json \
-&& git push --atomic origin "$(git rev-parse --abbrev-ref HEAD)"
-
-# NEW MINOR DEV - wen new feature
-_VERSION=$(semver -i preminor --preid dev "$(head -1 ./version | tr -d '\n')") && tee <<<"$_VERSION" ./version \
-&& git commit -m "Bump version to 'v$(head -1 ./version | tr -d '\n')'" ./version ./nix/sources.json \
-&& git push --atomic origin "$(git rev-parse --abbrev-ref HEAD)"
-
-# -i --increment [<level>]
-#        Increment a version by the specified level.  Level can
-#        be one of: major, minor, patch, premajor, preminor,
-#        prepatch, or prerelease.  Default level is 'patch'.
-#        Only one version may be specified.
-#
-# --preid <identifier>
-#        Identifier to be used to prefix premajor, preminor,
-#        prepatch or prerelease version increments.

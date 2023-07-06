@@ -20,7 +20,7 @@
     "ethGas": 150000,
     "chainType": "ethereum"
   },
-  "transports": ["spire", "ssb"],
+  "transports": ["spire"],
   "scuttlebotIdMap": {
     "0x3CB645a8f10Fb7B0721eaBaE958F77a878441Cb9": "@K5GMWYcMDFf7vJ14fU7GsydkeY5o3NQX0b+oui3DkEs=.ed25519",
     "0x4b0E327C08e23dD08cb87Ec994915a5375619aa2": "@E7B3opUWe14hpOsPgOzW8YzZv46uus0vVVZtcZ3TQBo=.ed25519",

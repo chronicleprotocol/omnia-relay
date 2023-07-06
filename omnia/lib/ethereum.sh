@@ -66,7 +66,7 @@ signTxBeforePush() {
 	local _gasPrice="${_fees[0]}"
 	local _gasPrio="${_fees[1]}"
 
-	if [ "$_gasPrice" -eq "0" ]; then 
+	if [ "$_gasPrice" -eq "0" ]; then
 		_gasPrice=$(ethereum gas-price --rpc-url "$ETH_RPC_URL")
 	fi
 
@@ -84,7 +84,7 @@ signTxBeforePush() {
 		--to "$(ethereum --to-checksum-address "$_to")"
 	)
 
-	if [ $ETH_TX_TYPE -eq 2 ] && [ "$_gasPrio" ]; then 
+	if [ $ETH_TX_TYPE -eq 2 ] && [ "$_gasPrio" ]; then
 		args+=(--prio-fee "$_gasPrio")
 	fi
 
@@ -116,7 +116,19 @@ pushOraclePrice () {
 
 		# signing tx, cast dont support ethsign, so have to do it manually
 		local _txdata
-		_txdata=$(signTxBeforePush $_oracleContract $_calldata $_fees)
+		if _txdata=$(signTxBeforePush $_oracleContract $_calldata $_fees)
+		then
+			verbose "Sign $_assetPair OK"
+		else
+		  error "Sign $_assetPair Failed"
+		  return 1
+		fi
+
+		if [[ -z "$_txdata" ]]
+		then
+			error "Transaction is empty"
+			return 1
+		fi
 
 		log "Simulating $_assetPair tx..."
 		local _sim
@@ -128,18 +140,30 @@ pushOraclePrice () {
 							"[$(join "${allS[@]}")]" \
 							--rpc-url "$ETH_RPC_URL")
 		then
-			verbose "sim $_assetPair OK"
+			verbose "Sim $_assetPair OK"
 		else
-		  error "TX $_assetPair Sim Failed"
+		  error "Sim $_assetPair Failed"
 		  return 1
 		fi
 
 		log "Sending $_assetPair tx..."
-		tx=$(ethereum publish --async --rpc-url "$ETH_RPC_URL" $_txdata)
+		if tx=$(ethereum publish --async --rpc-url "$ETH_RPC_URL" "$_txdata")
+		then
+			verbose "TX $_assetPair OK"
+		else
+		  error "TX $_assetPair Failed"
+		  return 1
+		fi
+
+		if [[ -z "$tx" ]]
+		then
+			error "Receipt is empty"
+			return 1
+		fi
 
 		_status="$(timeout -s9 60 ethereum receipt "$tx" status --rpc-url "$ETH_RPC_URL" )"
 		_gasUsed="$(timeout -s9 60 ethereum receipt "$tx" gasUsed --rpc-url "$ETH_RPC_URL" )"
-		
+
 		# Monitoring node helper JSON
 		verbose "Transaction receipt" "pair=$_assetPair" "tx=$tx" "type=$ETH_TX_TYPE" "maxGasPrice=${_fees[0]}" "prioFee=${_fees[1]}" "gasUsed=$_gasUsed" "status=$_status"
 }
